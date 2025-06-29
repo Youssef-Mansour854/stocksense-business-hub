@@ -55,44 +55,39 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-50 dark:bg-gray-900">
+    <div className="dashboard-container">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 lg:hidden bg-black bg-opacity-50"
+          className="dashboard-backdrop"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`
-        fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg 
-        transform transition-transform duration-300 ease-in-out
-        lg:relative lg:translate-x-0 lg:flex lg:flex-col lg:w-64 lg:z-auto
-        ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-      `}>
-        <div className="flex flex-col h-full">
+      <aside className={`dashboard-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        <div className="sidebar-content">
           {/* Header */}
-          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
+          <div className="sidebar-header">
+            <div className="sidebar-logo">
+              <div className="logo-icon">
+                <span className="logo-text">S</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">StockSense</span>
+              <span className="brand-name">StockSense</span>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden"
+              className="close-btn lg:hidden"
             >
               <X className="w-5 h-5" />
             </Button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 mt-6 px-3 overflow-y-auto">
-            <div className="space-y-1">
+          <nav className="sidebar-nav">
+            <div className="nav-items">
               {filteredMenuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -101,14 +96,10 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
-                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-                    }`}
+                    className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <Icon className="w-5 h-5 ml-3 rtl:ml-0 rtl:mr-3" />
+                    <Icon className="nav-icon" />
                     {item.name}
                   </Link>
                 );
@@ -117,35 +108,35 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
           </nav>
 
           {/* User Profile Section */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-            <div className="relative">
+          <div className="sidebar-footer">
+            <div className="user-menu-container">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="user-menu-trigger"
               >
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                  <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                <div className="user-info">
+                  <div className="user-avatar">
                     <User className="w-4 h-4" />
                   </div>
-                  <div className="text-right rtl:text-left">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user.ownerName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{getRoleDisplayName(user.role)}</p>
+                  <div className="user-details">
+                    <p className="user-name">{user.ownerName}</p>
+                    <p className="user-role">{getRoleDisplayName(user.role)}</p>
                   </div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`chevron-icon ${userMenuOpen ? 'chevron-rotated' : ''}`} />
               </button>
 
               {/* User Menu Dropdown */}
               {userMenuOpen && (
-                <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-                  <div className="p-2">
-                    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{user.companyName}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                <div className="user-dropdown">
+                  <div className="dropdown-content">
+                    <div className="dropdown-header">
+                      <p className="company-name">{user.companyName}</p>
+                      <p className="user-email">{user.email}</p>
                     </div>
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      className="logout-btn"
                     >
                       <LogOut className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
                       تسجيل الخروج
@@ -156,47 +147,45 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
             </div>
           </div>
         </div>
-      </div>
+      </aside>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="dashboard-main">
         {/* Top bar */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 lg:px-6 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 rtl:space-x-reverse">
+        <header className="dashboard-header">
+          <div className="header-content">
+            <div className="header-left">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden"
+                className="menu-btn lg:hidden"
               >
                 <Menu className="w-5 h-5" />
               </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="header-title">
+                <h1 className="welcome-text">
                   مرحباً، {user.ownerName}
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="company-info">
                   {user.companyName} - {getRoleDisplayName(user.role)}
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <Button variant="ghost" size="sm" className="relative">
+            <div className="header-right">
+              <Button variant="ghost" size="sm" className="notification-btn">
                 <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                  3
-                </span>
+                <span className="notification-badge">3</span>
               </Button>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="current-date">
                 {new Date().toLocaleDateString('ar-SA')}
               </div>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto p-4 lg:p-6">
+        <main className="dashboard-content">
           {children}
         </main>
       </div>
