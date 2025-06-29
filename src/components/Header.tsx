@@ -18,14 +18,14 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
       { name: 'الرئيسية', href: '#home' },
       { name: 'من نحن', href: '#about' },
       { name: 'المميزات', href: '#features' },
-      { name: 'الباقات', href: '#pricing' },
+      { name: 'التسجيل', href: '#register' },
       { name: 'اتصل بنا', href: '#contact' },
     ],
     en: [
       { name: 'Home', href: '#home' },
       { name: 'About', href: '#about' },
       { name: 'Features', href: '#features' },
-      { name: 'Pricing', href: '#pricing' },
+      { name: 'Register', href: '#register' },
       { name: 'Contact', href: '#contact' },
     ]
   };
@@ -34,12 +34,12 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
     ar: {
       login: 'تسجيل الدخول',
       signup: 'إنشاء حساب',
-      demo: 'تجربة مجانية'
+      demo: 'التسجيل مجاناً'
     },
     en: {
       login: 'Login',
       signup: 'Sign Up',
-      demo: 'Free Trial'
+      demo: 'Register Free'
     }
   };
 
@@ -97,7 +97,10 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
               {text[language].login}
             </Button>
             
-            <Button className="btn-primary">
+            <Button 
+              className="btn-primary"
+              onClick={() => document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               {text[language].demo}
             </Button>
           </div>
@@ -142,7 +145,13 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
                 <Button variant="ghost" className="text-gray-600 dark:text-gray-300 justify-start">
                   {text[language].login}
                 </Button>
-                <Button className="btn-primary justify-start">
+                <Button 
+                  className="btn-primary justify-start"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
                   {text[language].demo}
                 </Button>
               </div>
