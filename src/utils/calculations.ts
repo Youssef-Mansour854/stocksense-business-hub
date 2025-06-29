@@ -1,7 +1,6 @@
 // حسابات النظام والإحصائيات
 import { Sale, Purchase, Expense, Product, Stock, DashboardStats } from '@/types';
-import { getSales, getPurchases, getExpenses, getProducts, getStock } from './storage';
-import { getCurrentUser } from './auth';
+import { getSales, getPurchases, getExpenses, getProducts, getStock, getCurrentUser } from './storage';
 
 // حساب إجمالي المبيعات
 export const calculateTotalSales = (startDate?: string, endDate?: string): number => {
