@@ -137,9 +137,9 @@ const RegistrationSection = ({ language }: RegistrationSectionProps) => {
         description: language === 'ar' ? 'يمكنك الآن الوصول لجميع مميزات النظام' : 'You now have access to all system features',
       });
       
-      // Redirect to dashboard (for now, just show success)
+      // Redirect to dashboard
       setTimeout(() => {
-        window.location.href = '#dashboard';
+        window.location.href = '/dashboard';
       }, 1500);
       
     } catch (error) {
