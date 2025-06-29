@@ -55,7 +55,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -64,10 +64,13 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         />
       )}
 
-      {/* Sidebar - Fixed positioning with proper responsive behavior */}
-      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-        sidebarOpen ? 'translate-x-0' : 'translate-x-full'
-      } lg:relative lg:block`}>
+      {/* Sidebar - Fixed positioning for desktop, overlay for mobile */}
+      <div className={`
+        fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg 
+        transform transition-transform duration-300 ease-in-out
+        lg:relative lg:translate-x-0 lg:flex lg:flex-col lg:w-64
+        ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+      `}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
@@ -155,8 +158,8 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         </div>
       </div>
 
-      {/* Main content area - Proper flex layout */}
-      <div className="lg:mr-64 min-h-screen flex flex-col">
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 lg:px-6 flex-shrink-0">
           <div className="flex items-center justify-between">
