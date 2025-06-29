@@ -1,5 +1,4 @@
-
-import { Mail, Phone, MapPin, Heart } from 'lucide-react';
+import { Mail, Phone, MapPin, Heart, Facebook, Instagram } from 'lucide-react';
 
 interface FooterProps {
   language: 'ar' | 'en';
