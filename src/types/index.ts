@@ -12,6 +12,7 @@ export interface User {
   isActive: boolean;
   createdAt: string;
   lastLogin?: string;
+  deletedAt?: string;
 }
 
 export interface Company {
@@ -38,6 +39,7 @@ export interface Branch {
   managerId?: string;
   isActive: boolean;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface Warehouse {
@@ -48,6 +50,7 @@ export interface Warehouse {
   managerId?: string;
   isActive: boolean;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface Category {
@@ -57,6 +60,7 @@ export interface Category {
   description?: string;
   isActive: boolean;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface Supplier {
@@ -69,6 +73,7 @@ export interface Supplier {
   balance: number;
   isActive: boolean;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface Product {
@@ -82,11 +87,14 @@ export interface Product {
   unit: string;
   buyPrice: number;
   sellPrice: number;
+  finalPrice?: number; // السعر النهائي بعد الضريبة
   minQuantity: number;
+  taxRate?: number; // نسبة الضريبة
   description?: string;
   image?: string;
   isActive: boolean;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface InventoryMovement {
@@ -115,6 +123,7 @@ export interface Purchase {
   items: PurchaseItem[];
   userId: string;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface PurchaseItem {
@@ -130,6 +139,8 @@ export interface Sale {
   branchId: string;
   invoiceNumber: string;
   customerId?: string;
+  customerName?: string;
+  customerPhone?: string;
   totalAmount: number;
   discountAmount: number;
   finalAmount: number;
@@ -138,6 +149,7 @@ export interface Sale {
   items: SaleItem[];
   userId: string;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface SaleItem {
@@ -158,6 +170,7 @@ export interface Transfer {
   items: TransferItem[];
   userId: string;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface TransferItem {
@@ -175,6 +188,7 @@ export interface Expense {
   date: string;
   userId: string;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface ExpenseCategory {
@@ -184,6 +198,7 @@ export interface ExpenseCategory {
   description?: string;
   isActive: boolean;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface Revenue {
@@ -195,6 +210,7 @@ export interface Revenue {
   date: string;
   userId: string;
   createdAt: string;
+  deletedAt?: string;
 }
 
 export interface Stock {
@@ -216,4 +232,83 @@ export interface DashboardStats {
   totalProducts: number;
   totalCustomers: number;
   totalSuppliers: number;
+}
+
+// أنواع التقارير
+export interface SalesReport {
+  date: string;
+  totalSales: number;
+  totalTransactions: number;
+  averageTransaction: number;
+  topProducts: Array<{
+    productId: string;
+    productName: string;
+    quantity: number;
+    revenue: number;
+  }>;
+}
+
+export interface InventoryReport {
+  productId: string;
+  productName: string;
+  currentQuantity: number;
+  minQuantity: number;
+  stockValue: number;
+  status: 'normal' | 'low' | 'out';
+}
+
+export interface FinancialReport {
+  period: string;
+  totalRevenue: number;
+  totalExpenses: number;
+  netProfit: number;
+  profitMargin: number;
+}
+
+// أنواع الإعدادات
+export interface SystemSettings {
+  theme: 'light' | 'dark';
+  language: 'ar' | 'en';
+  currency: string;
+  notifications: boolean;
+  autoBackup: boolean;
+  dateFormat: 'gregorian' | 'hijri';
+}
+
+// أنواع الفلاتر والبحث
+export interface ProductFilter {
+  categoryId?: string;
+  supplierId?: string;
+  status?: 'active' | 'inactive' | 'low_stock' | 'out_of_stock';
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+}
+
+export interface SalesFilter {
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+  paymentMethod?: 'cash' | 'card' | 'transfer';
+  customerId?: string;
+  branchId?: string;
+}
+
+// أنواع الاستيراد والتصدير
+export interface ImportData {
+  products?: Product[];
+  suppliers?: Supplier[];
+  categories?: Category[];
+}
+
+export interface ExportData {
+  company: Company;
+  products: Product[];
+  sales: Sale[];
+  purchases: Purchase[];
+  expenses: Expense[];
+  stock: Stock[];
+  timestamp: string;
 }
