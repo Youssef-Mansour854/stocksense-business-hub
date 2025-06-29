@@ -55,7 +55,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -64,95 +64,99 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         />
       )}
 
-      {/* Sidebar - Fixed positioning */}
-      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex lg:flex-col ${
-        sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
-      }`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
+      {/* Sidebar - Fixed positioning with proper responsive behavior */}
+      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+      } lg:relative lg:block`}>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div className="flex items-center space-x-2 rtl:space-x-reverse">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">StockSense</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">StockSense</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden"
-          >
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
-
-        <nav className="flex-1 mt-6 px-3 overflow-y-auto">
-          <div className="space-y-1">
-            {filteredMenuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-                  }`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <Icon className="w-5 h-5 ml-3 rtl:ml-0 rtl:mr-3" />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
-
-        {/* User Profile Section */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="relative">
-            <button
-              onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden"
             >
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4" />
-                </div>
-                <div className="text-right rtl:text-left">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user.ownerName}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{getRoleDisplayName(user.role)}</p>
-                </div>
-              </div>
-              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
 
-            {/* User Menu Dropdown */}
-            {userMenuOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-                <div className="p-2">
-                  <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user.companyName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+          {/* Navigation */}
+          <nav className="flex-1 mt-6 px-3 overflow-y-auto">
+            <div className="space-y-1">
+              {filteredMenuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                    }`}
+                    onClick={() => setSidebarOpen(false)}
                   >
-                    <LogOut className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
-                    تسجيل الخروج
-                  </button>
+                    <Icon className="w-5 h-5 ml-3 rtl:ml-0 rtl:mr-3" />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+
+          {/* User Profile Section */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div className="text-right rtl:text-left">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user.ownerName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{getRoleDisplayName(user.role)}</p>
+                  </div>
                 </div>
-              </div>
-            )}
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* User Menu Dropdown */}
+              {userMenuOpen && (
+                <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                  <div className="p-2">
+                    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{user.companyName}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
+                      تسجيل الخروج
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main content area - Proper flex layout */}
+      <div className="lg:mr-64 min-h-screen flex flex-col">
         {/* Top bar */}
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 lg:px-6 flex-shrink-0">
           <div className="flex items-center justify-between">
