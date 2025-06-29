@@ -6,7 +6,6 @@ import AboutSection from '@/components/AboutSection';
 import PricingSection from '@/components/PricingSection';
 import ContactSection from '@/components/ContactSection';
 import Footer from '@/components/Footer';
-import RegistrationSection from '@/components/RegistrationSection';
 
 const Index = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -66,7 +65,6 @@ const Index = () => {
         <FeaturesSection language={language} />
         <AboutSection language={language} />
         <PricingSection language={language} />
-        <RegistrationSection language={language} />
         <ContactSection language={language} />
       </main>
       

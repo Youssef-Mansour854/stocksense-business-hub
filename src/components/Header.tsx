@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { Menu, X, Moon, Sun, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -18,14 +18,12 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
       { name: 'الرئيسية', href: '#home' },
       { name: 'من نحن', href: '#about' },
       { name: 'المميزات', href: '#features' },
-      { name: 'التسجيل', href: '#register' },
       { name: 'اتصل بنا', href: '#contact' },
     ],
     en: [
       { name: 'Home', href: '#home' },
       { name: 'About', href: '#about' },
       { name: 'Features', href: '#features' },
-      { name: 'Register', href: '#register' },
       { name: 'Contact', href: '#contact' },
     ]
   };
@@ -93,16 +91,17 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             
-            <Button variant="ghost" className="text-gray-600 dark:text-gray-300">
-              {text[language].login}
-            </Button>
+            <Link to="/login">
+              <Button variant="ghost" className="text-gray-600 dark:text-gray-300">
+                {text[language].login}
+              </Button>
+            </Link>
             
-            <Button 
-              className="btn-primary"
-              onClick={() => document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              {text[language].demo}
-            </Button>
+            <Link to="/register">
+              <Button className="btn-primary">
+                {text[language].demo}
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -142,18 +141,16 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
                 </a>
               ))}
               <div className="flex flex-col space-y-2 px-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button variant="ghost" className="text-gray-600 dark:text-gray-300 justify-start">
-                  {text[language].login}
-                </Button>
-                <Button 
-                  className="btn-primary justify-start"
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                >
-                  {text[language].demo}
-                </Button>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="ghost" className="text-gray-600 dark:text-gray-300 justify-start w-full">
+                    {text[language].login}
+                  </Button>
+                </Link>
+                <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                  <Button className="btn-primary justify-start w-full">
+                    {text[language].demo}
+                  </Button>
+                </Link>
               </div>
             </nav>
           </div>
