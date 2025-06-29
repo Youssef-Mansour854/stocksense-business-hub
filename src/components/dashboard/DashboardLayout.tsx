@@ -55,7 +55,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="h-screen flex overflow-hidden bg-gray-50 dark:bg-gray-900">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -64,11 +64,11 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         />
       )}
 
-      {/* Sidebar - Fixed positioning for desktop, overlay for mobile */}
+      {/* Sidebar */}
       <div className={`
         fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg 
         transform transition-transform duration-300 ease-in-out
-        lg:relative lg:translate-x-0 lg:flex lg:flex-col lg:w-64
+        lg:relative lg:translate-x-0 lg:flex lg:flex-col lg:w-64 lg:z-auto
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex flex-col h-full">
@@ -159,7 +159,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 lg:px-6 flex-shrink-0">
           <div className="flex items-center justify-between">
@@ -196,7 +196,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         </div>
 
         {/* Page content */}
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
+        <main className="flex-1 overflow-auto p-4 lg:p-6">
           {children}
         </main>
       </div>
