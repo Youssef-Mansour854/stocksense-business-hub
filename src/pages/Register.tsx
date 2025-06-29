@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { User, Building2, Mail, Phone, Lock, MapPin, ArrowRight } from 'lucide-react';
+import { User, Building2, Mail, Phone, Lock, MapPin, ArrowRight, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { register } from '@/utils/auth';
 
@@ -104,6 +104,17 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4">
       <div className="max-w-2xl mx-auto">
+        {/* زر العودة للرئيسية */}
+        <div className="mb-6">
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+          >
+            <Home className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
+            العودة للرئيسية
+          </Link>
+        </div>
+
         {/* الشعار والعنوان */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse mb-4">

@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { login } from '@/utils/auth';
 
@@ -68,6 +67,17 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* زر العودة للرئيسية */}
+        <div className="mb-6">
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+          >
+            <Home className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
+            العودة للرئيسية
+          </Link>
+        </div>
+
         {/* الشعار والعنوان */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse mb-4">

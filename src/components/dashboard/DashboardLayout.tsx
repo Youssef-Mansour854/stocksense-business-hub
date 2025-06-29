@@ -55,7 +55,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -64,11 +64,11 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         />
       )}
 
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-        sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+      {/* Sidebar - Fixed positioning */}
+      <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex lg:flex-col ${
+        sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
       }`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">S</span>
@@ -85,7 +85,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
           </Button>
         </div>
 
-        <nav className="mt-6 px-3">
+        <nav className="flex-1 mt-6 px-3 overflow-y-auto">
           <div className="space-y-1">
             {filteredMenuItems.map((item) => {
               const Icon = item.icon;
@@ -111,7 +111,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         </nav>
 
         {/* User Profile Section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -151,10 +151,10 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="lg:mr-64">
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 lg:px-6">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 lg:px-6 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
               <Button
@@ -189,7 +189,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
         </div>
 
         {/* Page content */}
-        <main className="p-4 lg:p-6">
+        <main className="flex-1 p-4 lg:p-6 overflow-auto">
           {children}
         </main>
       </div>

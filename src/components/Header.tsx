@@ -46,7 +46,7 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
       <div className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <Link to="/" className="flex items-center space-x-4 rtl:space-x-reverse">
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
               <div className="w-8 h-8 bg-hero-gradient rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">S</span>
@@ -55,7 +55,7 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
                 StockSense
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
