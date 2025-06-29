@@ -1,41 +1,57 @@
-
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Home, Package, ShoppingCart, ShoppingBag, Warehouse, 
   Users, Building2, DollarSign, BarChart3, Settings, 
-  Menu, X, LogOut, Bell, User
+  Menu, X, LogOut, Bell, User, ChevronDown
 } from 'lucide-react';
+import { logout } from '@/utils/auth';
+import { User as UserType } from '@/types';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  user: any;
+  user: UserType;
 }
 
 const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
   const menuItems = [
-    { name: 'لوحة التحكم', path: '/dashboard', icon: Home },
-    { name: 'المنتجات', path: '/dashboard/products', icon: Package },
-    { name: 'المبيعات', path: '/dashboard/sales', icon: ShoppingCart },
-    { name: 'المشتريات', path: '/dashboard/purchases', icon: ShoppingBag },
-    { name: 'المخزون', path: '/dashboard/inventory', icon: Warehouse },
-    { name: 'الموردين', path: '/dashboard/suppliers', icon: Users },
-    { name: 'الفروع', path: '/dashboard/branches', icon: Building2 },
-    { name: 'المصروفات', path: '/dashboard/expenses', icon: DollarSign },
-    { name: 'التقارير', path: '/dashboard/reports', icon: BarChart3 },
-    { name: 'المستخدمين', path: '/dashboard/users', icon: Users },
-    { name: 'الإعدادات', path: '/dashboard/settings', icon: Settings },
+    { name: 'لوحة التحكم', path: '/dashboard', icon: Home, roles: ['owner', 'manager', 'accountant', 'cashier'] },
+    { name: 'المنتجات', path: '/dashboard/products', icon: Package, roles: ['owner', 'manager', 'cashier'] },
+    { name: 'المبيعات', path: '/dashboard/sales', icon: ShoppingCart, roles: ['owner', 'manager', 'cashier'] },
+    { name: 'المشتريات', path: '/dashboard/purchases', icon: ShoppingBag, roles: ['owner', 'manager'] },
+    { name: 'المخزون', path: '/dashboard/inventory', icon: Warehouse, roles: ['owner', 'manager'] },
+    { name: 'الموردين', path: '/dashboard/suppliers', icon: Users, roles: ['owner', 'manager'] },
+    { name: 'الفروع', path: '/dashboard/branches', icon: Building2, roles: ['owner'] },
+    { name: 'المصروفات', path: '/dashboard/expenses', icon: DollarSign, roles: ['owner', 'manager', 'accountant'] },
+    { name: 'التقارير', path: '/dashboard/reports', icon: BarChart3, roles: ['owner', 'manager', 'accountant'] },
+    { name: 'المستخدمين', path: '/dashboard/users', icon: Users, roles: ['owner'] },
+    { name: 'الإعدادات', path: '/dashboard/settings', icon: Settings, roles: ['owner', 'manager'] },
   ];
 
+  // فلترة القائمة حسب صلاحيات المستخدم
+  const filteredMenuItems = menuItems.filter(item => 
+    item.roles.includes(user.role)
+  );
+
   const handleLogout = () => {
-    localStorage.removeItem('stocksense_logged_in');
-    localStorage.removeItem('stocksense_user');
+    logout();
     navigate('/');
+  };
+
+  const getRoleDisplayName = (role: string) => {
+    const roleNames = {
+      'owner': 'المالك',
+      'manager': 'المدير',
+      'accountant': 'المحاسب',
+      'cashier': 'الكاشير'
+    };
+    return roleNames[role as keyof typeof roleNames] || role;
   };
 
   return (
@@ -54,7 +70,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
       }`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">S</span>
             </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white">StockSense</span>
@@ -71,7 +87,7 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
 
         <nav className="mt-6 px-3">
           <div className="space-y-1">
-            {menuItems.map((item) => {
+            {filteredMenuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               
@@ -94,25 +110,43 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
           </div>
         </nav>
 
+        {/* User Profile Section */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.ownerName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.companyName}</p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="text-red-600 hover:text-red-700"
+          <div className="relative">
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-              <LogOut className="w-4 h-4" />
-            </Button>
+              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4" />
+                </div>
+                <div className="text-right rtl:text-left">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user.ownerName}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{getRoleDisplayName(user.role)}</p>
+                </div>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* User Menu Dropdown */}
+            {userMenuOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                <div className="p-2">
+                  <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user.companyName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
+                    تسجيل الخروج
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -131,14 +165,25 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
               >
                 <Menu className="w-5 h-5" />
               </Button>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                مرحباً، {user?.ownerName}
-              </h1>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  مرحباً، {user.ownerName}
+                </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {user.companyName} - {getRoleDisplayName(user.role)}
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="relative">
                 <Bell className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                  3
+                </span>
               </Button>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {new Date().toLocaleDateString('ar-SA')}
+              </div>
             </div>
           </div>
         </div>

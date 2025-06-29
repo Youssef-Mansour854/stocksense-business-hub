@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { User, Building2, Mail, Phone, Lock, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { register } from '@/utils/auth';
+import { useNavigate } from 'react-router-dom';
 
 interface RegistrationSectionProps {
   language: 'ar' | 'en';
@@ -33,6 +34,7 @@ const formSchema = z.object({
 const RegistrationSection = ({ language }: RegistrationSectionProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const content = {
     ar: {
@@ -115,32 +117,32 @@ const RegistrationSection = ({ language }: RegistrationSectionProps) => {
     setIsLoading(true);
     
     try {
-      // Here you would normally send the data to your backend
-      console.log('Registration data:', values);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Store user data in localStorage for now (in production, this would be handled by your backend)
-      const userData = {
-        ...values,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        isActive: true
-      };
-      
-      localStorage.setItem('stocksense_user', JSON.stringify(userData));
-      localStorage.setItem('stocksense_logged_in', 'true');
-      
-      toast({
-        title: text.successMessage,
-        description: language === 'ar' ? 'يمكنك الآن الوصول لجميع مميزات النظام' : 'You now have access to all system features',
+      // تسجيل المستخدم الجديد
+      const result = register({
+        companyName: values.companyName,
+        businessType: values.businessType,
+        ownerName: values.ownerName,
+        email: values.email,
+        phone: values.phone,
+        address: values.address
       });
       
-      // Redirect to dashboard
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
+      if (result.success) {
+        toast({
+          title: text.successMessage,
+          description: language === 'ar' ? 'يمكنك الآن الوصول لجميع مميزات النظام' : 'You now have access to all system features',
+        });
+        
+        // الانتقال إلى لوحة التحكم
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
+      } else {
+        toast({
+          title: result.message,
+          variant: 'destructive',
+        });
+      }
       
     } catch (error) {
       toast({

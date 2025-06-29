@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -13,18 +12,18 @@ import ExpensesPage from '@/components/dashboard/ExpensesPage';
 import ReportsPage from '@/components/dashboard/ReportsPage';
 import UsersPage from '@/components/dashboard/UsersPage';
 import SettingsPage from '@/components/dashboard/SettingsPage';
+import { isAuthenticated, getAuthenticatedUser } from '@/utils/auth';
+import { User } from '@/types';
 
 const Dashboard = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
-      const isLoggedIn = localStorage.getItem('stocksense_logged_in');
-      const userData = localStorage.getItem('stocksense_user');
-      
-      if (isLoggedIn === 'true' && userData) {
-        setUser(JSON.parse(userData));
+      if (isAuthenticated()) {
+        const userData = getAuthenticatedUser();
+        setUser(userData);
       }
       setLoading(false);
     };
@@ -34,10 +33,10 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري التحميل...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">جاري التحميل...</p>
         </div>
       </div>
     );
