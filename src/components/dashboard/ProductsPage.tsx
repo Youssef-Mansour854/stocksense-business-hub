@@ -257,7 +257,7 @@ const ProductsPage = () => {
     const matchesSearch = product.name.includes(searchTerm) ||
                          product.sku.includes(searchTerm) ||
                          (product.barcode && product.barcode.includes(searchTerm));
-    const matchesCategory = !selectedCategory || product.categoryId === selectedCategory;
+    const matchesCategory = !selectedCategory || selectedCategory === "all" || product.categoryId === selectedCategory;
     const matchesStatus = showDeleted ? !product.isActive : product.isActive;
     
     return matchesSearch && matchesCategory && matchesStatus;
@@ -571,7 +571,7 @@ const ProductsPage = () => {
               <SelectValue placeholder="جميع الفئات" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">جميع الفئات</SelectItem>
+              <SelectItem value="all">جميع الفئات</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   {category.name}

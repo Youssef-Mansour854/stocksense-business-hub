@@ -381,7 +381,7 @@ const AdvancedInventoryPage = () => {
   const filteredInventory = inventoryData.filter(item => {
     const matchesSearch = item.product.name.includes(searchTerm) ||
                          item.product.sku.includes(searchTerm);
-    const matchesStatus = !filterStatus || item.status === filterStatus;
+    const matchesStatus = !filterStatus || filterStatus === "all" || item.status === filterStatus;
     
     return matchesSearch && matchesStatus;
   });
@@ -720,7 +720,7 @@ const AdvancedInventoryPage = () => {
               <SelectValue placeholder="حالة المخزون" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">جميع الحالات</SelectItem>
+              <SelectItem value="all">جميع الحالات</SelectItem>
               <SelectItem value="normal">مخزون طبيعي</SelectItem>
               <SelectItem value="low">نقص مخزون</SelectItem>
               <SelectItem value="out">نفد المخزون</SelectItem>

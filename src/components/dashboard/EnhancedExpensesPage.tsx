@@ -238,7 +238,7 @@ const EnhancedExpensesPage = () => {
     const matchesSearch = expense.description.includes(searchTerm) ||
                          (category && category.name.includes(searchTerm)) ||
                          expense.amount.toString().includes(searchTerm);
-    const matchesCategory = !filterCategory || expense.categoryId === filterCategory;
+    const matchesCategory = !filterCategory || filterCategory === "all" || expense.categoryId === filterCategory;
     const matchesStatus = showDeleted ? !!expense.deletedAt : !expense.deletedAt;
     
     const dateRange = getDateRangeFilter();
@@ -440,7 +440,7 @@ const EnhancedExpensesPage = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">جميع الفروع</SelectItem>
+                              <SelectItem value="all">جميع الفروع</SelectItem>
                               {branches.map((branch) => (
                                 <SelectItem key={branch.id} value={branch.id}>
                                   {branch.name}
@@ -587,7 +587,7 @@ const EnhancedExpensesPage = () => {
               <SelectValue placeholder="جميع الفئات" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">جميع الفئات</SelectItem>
+              <SelectItem value="all">جميع الفئات</SelectItem>
               {expenseCategories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   {category.name}
@@ -600,7 +600,7 @@ const EnhancedExpensesPage = () => {
               <SelectValue placeholder="الفترة الزمنية" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">جميع الفترات</SelectItem>
+              <SelectItem value="all">جميع الفترات</SelectItem>
               <SelectItem value="today">اليوم</SelectItem>
               <SelectItem value="week">هذا الأسبوع</SelectItem>
               <SelectItem value="month">هذا الشهر</SelectItem>

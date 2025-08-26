@@ -268,8 +268,8 @@ const EnhancedPurchasesPage = () => {
     const supplier = suppliers.find(s => s.id === purchase.supplierId);
     const matchesSearch = purchase.invoiceNumber.includes(searchTerm) ||
                          (supplier && supplier.name.includes(searchTerm));
-    const matchesStatus = !filterStatus || purchase.status === filterStatus;
-    const matchesSupplier = !filterSupplier || purchase.supplierId === filterSupplier;
+    const matchesStatus = !filterStatus || filterStatus === "all" || purchase.status === filterStatus;
+    const matchesSupplier = !filterSupplier || filterSupplier === "all" || purchase.supplierId === filterSupplier;
     
     return matchesSearch && matchesStatus && matchesSupplier;
   });
@@ -676,7 +676,7 @@ const EnhancedPurchasesPage = () => {
               <SelectValue placeholder="جميع الموردين" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">جميع الموردين</SelectItem>
+              <SelectItem value="all">جميع الموردين</SelectItem>
               {suppliers.map((supplier) => (
                 <SelectItem key={supplier.id} value={supplier.id}>
                   {supplier.name}
@@ -689,7 +689,7 @@ const EnhancedPurchasesPage = () => {
               <SelectValue placeholder="الحالة" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">جميع الحالات</SelectItem>
+              <SelectItem value="all">جميع الحالات</SelectItem>
               <SelectItem value="pending">معلقة</SelectItem>
               <SelectItem value="completed">مكتملة</SelectItem>
               <SelectItem value="cancelled">ملغية</SelectItem>

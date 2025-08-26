@@ -319,8 +319,8 @@ const InvoicesPage = () => {
     const matchesSearch = invoice.number.includes(searchTerm) ||
                          (invoice.customerId && customers.find(c => c.id === invoice.customerId)?.name.includes(searchTerm)) ||
                          (invoice.supplierId && suppliers.find(s => s.id === invoice.supplierId)?.name.includes(searchTerm));
-    const matchesType = !filterType || invoice.type === filterType;
-    const matchesStatus = !filterStatus || invoice.status === filterStatus;
+    const matchesType = !filterType || filterType === "all" || invoice.type === filterType;
+    const matchesStatus = !filterStatus || filterStatus === "all" || invoice.status === filterStatus;
     
     return matchesSearch && matchesType && matchesStatus;
   });
@@ -428,7 +428,7 @@ const InvoicesPage = () => {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="">عميل عادي</SelectItem>
+                                <SelectItem value="regular">عميل عادي</SelectItem>
                                 {customers.map((customer) => (
                                   <SelectItem key={customer.id} value={customer.id}>
                                     {customer.name} - {customer.phone}
@@ -785,7 +785,7 @@ const InvoicesPage = () => {
               <SelectValue placeholder="نوع الفاتورة" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">جميع الأنواع</SelectItem>
+              <SelectItem value="all">جميع الأنواع</SelectItem>
               <SelectItem value="sale">فواتير البيع</SelectItem>
               <SelectItem value="purchase">فواتير الشراء</SelectItem>
             </SelectContent>
@@ -795,7 +795,7 @@ const InvoicesPage = () => {
               <SelectValue placeholder="الحالة" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">جميع الحالات</SelectItem>
+              <SelectItem value="all">جميع الحالات</SelectItem>
               <SelectItem value="completed">مكتملة</SelectItem>
               <SelectItem value="pending">معلقة</SelectItem>
               <SelectItem value="cancelled">ملغية</SelectItem>
