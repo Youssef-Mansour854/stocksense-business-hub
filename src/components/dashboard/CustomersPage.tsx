@@ -12,7 +12,7 @@ import {
   Plus, Search, Edit, Trash2, User, Phone, Mail, 
   MapPin, DollarSign, Calendar, Eye, RotateCcw,
   Archive, TrendingUp, Users as UsersIcon, CreditCard,
-  History, FileText, AlertCircle
+  History, FileText, AlertCircle, Receipt
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomers, saveCustomers, getSales, getInvoices } from '@/utils/storage';
@@ -120,7 +120,11 @@ const CustomersPage = () => {
         const newCustomer: Customer = {
           id: `customer_${Date.now()}`,
           companyId: user.id,
-          ...values,
+          name: values.name || '',
+          phone: values.phone || '',
+          email: values.email,
+          address: values.address,
+          notes: values.notes,
           balance: 0,
           totalPurchases: 0,
           isActive: true,

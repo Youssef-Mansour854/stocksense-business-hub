@@ -11,11 +11,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { 
-  Warehouse, Package, TrendingUp, TrendingDown, 
+  Package, TrendingUp, TrendingDown, 
   ArrowUpDown, Plus, Minus, Search, Filter,
   AlertTriangle, CheckCircle, XCircle, RefreshCw,
   BarChart3, PieChart, Activity, Target, Archive,
-  Move, RotateCcw, Eye, Edit, History
+  Move, RotateCcw, Eye, Edit, History, DollarSign
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { 

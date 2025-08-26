@@ -119,7 +119,14 @@ const EnhancedExpensesPage = () => {
         const newExpense: Expense = {
           id: `expense_${Date.now()}`,
           companyId: user.id,
-          ...values,
+          categoryId: values.categoryId || 'default_category',
+          amount: values.amount || 0,
+          description: values.description || '',
+          date: values.date || new Date().toISOString().split('T')[0],
+          branchId: values.branchId,
+          paymentMethod: values.paymentMethod,
+          reference: values.reference,
+          notes: values.notes,
           userId: user.id,
           createdAt: new Date().toISOString(),
         };

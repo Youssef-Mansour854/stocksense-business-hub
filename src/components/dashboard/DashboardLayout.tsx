@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Home, Package, ShoppingCart, ShoppingBag, Warehouse, 
   Users, Building2, DollarSign, BarChart3, Settings, 
-  Menu, X, LogOut, Bell, User, ChevronDown
+  Menu, X, LogOut, Bell, User, ChevronDown, Receipt
 } from 'lucide-react';
 import { logout } from '@/utils/auth';
 import { User as UserType } from '@/types';
