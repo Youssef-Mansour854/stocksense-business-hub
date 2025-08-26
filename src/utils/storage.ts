@@ -1,5 +1,5 @@
 // نظام تخزين البيانات المحلي
-import { User, Company, Product, Sale, Purchase, Expense, Stock, Branch, Warehouse, Supplier, Category, Customer, Invoice, Payment } from '@/types';
+import { User, Company, Product, Sale, Purchase, Expense, Stock, Branch, Warehouse, Supplier, Category, Customer, Invoice, Payment, InventoryMovement } from '@/types';
 
 const STORAGE_KEYS = {
   CURRENT_USER: 'stocksense_current_user',
@@ -17,7 +17,9 @@ const STORAGE_KEYS = {
   INVOICES: 'stocksense_invoices',
   PAYMENTS: 'stocksense_payments',
   USERS: 'stocksense_users',
-  SETTINGS: 'stocksense_settings'
+  SETTINGS: 'stocksense_settings',
+  INVENTORY_MOVEMENTS: 'stocksense_inventory_movements',
+  EXPENSE_CATEGORIES: 'stocksense_expense_categories'
 };
 
 // حفظ البيانات
@@ -200,6 +202,16 @@ export const getPayments = (): Payment[] => {
   return getFromStorage<Payment[]>(STORAGE_KEYS.PAYMENTS, []);
 };
 
+// حفظ حركات المخزون
+export const saveInventoryMovements = (movements: InventoryMovement[]): void => {
+  saveToStorage(STORAGE_KEYS.INVENTORY_MOVEMENTS, movements);
+};
+
+// استرجاع حركات المخزون
+export const getInventoryMovements = (): InventoryMovement[] => {
+  return getFromStorage<InventoryMovement[]>(STORAGE_KEYS.INVENTORY_MOVEMENTS, []);
+};
+
 // حفظ المستخدمين
 export const saveUsers = (users: User[]): void => {
   saveToStorage(STORAGE_KEYS.USERS, users);
@@ -285,6 +297,17 @@ export const initializeCompanyData = (user: User): void => {
   ];
   saveCategories(defaultCategories);
 
+  // إنشاء مورد افتراضي
+  const defaultSupplier: Supplier = {
+    id: `supplier_${Date.now()}`,
+    companyId,
+    name: 'مورد افتراضي',
+    phone: '0500000000',
+    balance: 0,
+    isActive: true,
+    createdAt: new Date().toISOString()
+  };
+  saveSuppliers([defaultSupplier]);
   // إضافة المستخدم إلى قائمة المستخدمين
   const users = getUsers();
   const existingUserIndex = users.findIndex(u => u.email === user.email);
@@ -299,10 +322,10 @@ export const initializeCompanyData = (user: User): void => {
   savePurchases([]);
   saveExpenses([]);
   saveStock([]);
-  saveSuppliers([]);
   saveCustomers([]);
   saveInvoices([]);
   savePayments([]);
+  saveInventoryMovements([]);
 };
 
 export { STORAGE_KEYS };

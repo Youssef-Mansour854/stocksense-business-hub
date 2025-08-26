@@ -14,7 +14,8 @@ import {
   Plus, Search, Filter, Receipt, Edit, Trash2, Eye,
   FileText, Download, Send, DollarSign, Calendar,
   User, Package, Calculator, CreditCard, Banknote,
-  Smartphone, Clock, CheckCircle, XCircle, AlertCircle
+  Smartphone, Clock, CheckCircle, XCircle, AlertCircle,
+  Printer, Share, Copy, RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -51,6 +52,8 @@ const InvoicesPage = () => {
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [isNewInvoiceDialogOpen, setIsNewInvoiceDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
   const [selectedItems, setSelectedItems] = useState<InvoiceItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -290,6 +293,28 @@ const InvoicesPage = () => {
     }
   };
 
+  const handleViewInvoice = (invoice: Invoice) => {
+    setViewingInvoice(invoice);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleUpdateStatus = (invoiceId: string, newStatus: string) => {
+    const allInvoices = getInvoices();
+    const updatedInvoices = allInvoices.map(inv => 
+      inv.id === invoiceId 
+        ? { ...inv, status: newStatus as any, updatedAt: new Date().toISOString() }
+        : inv
+    );
+    saveInvoices(updatedInvoices);
+    
+    toast({
+      title: 'تم تحديث حالة الفاتورة',
+      description: 'تم تحديث حالة الفاتورة بنجاح',
+    });
+    
+    loadData();
+  };
+
   const filteredInvoices = invoices.filter(invoice => {
     const matchesSearch = invoice.number.includes(searchTerm) ||
                          (invoice.customerId && customers.find(c => c.id === invoice.customerId)?.name.includes(searchTerm)) ||
@@ -305,7 +330,9 @@ const InvoicesPage = () => {
     sales: invoices.filter(i => i.type === 'sale').length,
     purchases: invoices.filter(i => i.type === 'purchase').length,
     pending: invoices.filter(i => i.status === 'pending').length,
+    completed: invoices.filter(i => i.status === 'completed').length,
     totalAmount: invoices.reduce((sum, i) => sum + i.totalAmount, 0),
+    pendingAmount: invoices.filter(i => i.status === 'pending').reduce((sum, i) => sum + i.remainingAmount, 0),
   };
 
   const statusLabels = {
@@ -317,11 +344,11 @@ const InvoicesPage = () => {
   };
 
   const statusColors = {
-    draft: 'bg-gray-100 text-gray-800',
-    pending: 'bg-yellow-100 text-yellow-800',
-    completed: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800',
-    refunded: 'bg-purple-100 text-purple-800',
+    draft: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    refunded: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
   };
 
   const paymentMethodLabels = {
@@ -331,13 +358,20 @@ const InvoicesPage = () => {
     credit: 'آجل',
   };
 
+  const paymentMethodIcons = {
+    cash: Banknote,
+    card: CreditCard,
+    transfer: Smartphone,
+    credit: Clock,
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">إدارة الفواتير</h2>
-          <p className="text-gray-600 dark:text-gray-400">إنشاء وإدارة فواتير البيع والشراء</p>
+          <p className="text-gray-600 dark:text-gray-400">إنشاء وإدارة فواتير البيع والشراء المتقدمة</p>
         </div>
         <Dialog open={isNewInvoiceDialogOpen} onOpenChange={setIsNewInvoiceDialogOpen}>
           <DialogTrigger asChild>
@@ -543,33 +577,35 @@ const InvoicesPage = () => {
                 
                 {/* قائمة المنتجات المضافة */}
                 <div className="space-y-2">
-                  <h4 className="font-medium">المنتجات المضافة:</h4>
-                  {selectedItems.map((item) => {
-                    const product = products.find(p => p.id === item.productId);
-                    return (
-                      <div key={item.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border">
-                        <div className="flex-1">
-                          <div className="font-medium">{product?.name}</div>
-                          <div className="text-sm text-gray-500">
-                            {item.quantity} × {item.unitPrice} ر.س
-                            {item.discountPercent > 0 && ` (خصم ${item.discountPercent}%)`}
-                            {item.taxPercent > 0 && ` (ضريبة ${item.taxPercent}%)`}
+                  <h4 className="font-medium">المنتجات المضافة ({selectedItems.length}):</h4>
+                  <div className="max-h-64 overflow-y-auto space-y-2">
+                    {selectedItems.map((item) => {
+                      const product = products.find(p => p.id === item.productId);
+                      return (
+                        <div key={item.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border">
+                          <div className="flex-1">
+                            <div className="font-medium">{product?.name}</div>
+                            <div className="text-sm text-gray-500">
+                              {item.quantity} × {item.unitPrice} ر.س
+                              {item.discountPercent > 0 && ` (خصم ${item.discountPercent}%)`}
+                              {item.taxPercent > 0 && ` (ضريبة ${item.taxPercent}%)`}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                            <span className="font-bold">{item.totalPrice.toFixed(2)} ر.س</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeItemFromInvoice(item.productId)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                          <span className="font-bold">{item.totalPrice.toFixed(2)} ر.س</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeItemFromInvoice(item.productId)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
               
@@ -636,8 +672,12 @@ const InvoicesPage = () => {
                         <span>{calculateSubtotal().toFixed(2)} ر.س</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>إجمالي الخصومات:</span>
-                        <span>-{(calculateTotalDiscount() + (form.watch('discountAmount') || 0)).toFixed(2)} ر.س</span>
+                        <span>خصومات المنتجات:</span>
+                        <span>-{calculateTotalDiscount().toFixed(2)} ر.س</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>خصم الفاتورة:</span>
+                        <span>-{(form.watch('discountAmount') || 0).toFixed(2)} ر.س</span>
                       </div>
                       <div className="flex justify-between">
                         <span>إجمالي الضرائب:</span>
@@ -645,7 +685,7 @@ const InvoicesPage = () => {
                       </div>
                       <div className="flex justify-between font-bold text-lg border-t pt-2">
                         <span>المجموع النهائي:</span>
-                        <span>{calculateFinalAmount().toFixed(2)} ر.س</span>
+                        <span className="text-green-600">{calculateFinalAmount().toFixed(2)} ر.س</span>
                       </div>
                     </div>
                     
@@ -671,7 +711,7 @@ const InvoicesPage = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
         <Card className="p-4">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <FileText className="w-8 h-8 text-blue-600" />
@@ -703,8 +743,17 @@ const InvoicesPage = () => {
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <Clock className="w-8 h-8 text-yellow-600" />
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">فواتير معلقة</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">معلقة</p>
               <p className="text-2xl font-bold">{stats.pending}</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">مكتملة</p>
+              <p className="text-2xl font-bold">{stats.completed}</p>
             </div>
           </div>
         </Card>
@@ -712,8 +761,8 @@ const InvoicesPage = () => {
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <DollarSign className="w-8 h-8 text-orange-600" />
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي القيمة</p>
-              <p className="text-2xl font-bold">{stats.totalAmount.toLocaleString()} ر.س</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">مبالغ معلقة</p>
+              <p className="text-2xl font-bold text-red-600">{stats.pendingAmount.toLocaleString()} ر.س</p>
             </div>
           </div>
         </Card>
@@ -750,6 +799,7 @@ const InvoicesPage = () => {
               <SelectItem value="completed">مكتملة</SelectItem>
               <SelectItem value="pending">معلقة</SelectItem>
               <SelectItem value="cancelled">ملغية</SelectItem>
+              <SelectItem value="refunded">مسترد</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -774,6 +824,9 @@ const InvoicesPage = () => {
                   المبلغ
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  طريقة الدفع
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   الحالة
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -788,6 +841,7 @@ const InvoicesPage = () => {
               {filteredInvoices.map((invoice) => {
                 const customer = customers.find(c => c.id === invoice.customerId);
                 const supplier = suppliers.find(s => s.id === invoice.supplierId);
+                const PaymentIcon = paymentMethodIcons[invoice.paymentMethod];
                 
                 return (
                   <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
@@ -795,6 +849,11 @@ const InvoicesPage = () => {
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {invoice.number}
                       </div>
+                      {invoice.dueDate && (
+                        <div className="text-xs text-gray-500">
+                          استحقاق: {new Date(invoice.dueDate).toLocaleDateString('ar-SA')}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -809,6 +868,11 @@ const InvoicesPage = () => {
                       <div className="text-sm text-gray-900 dark:text-white">
                         {customer?.name || supplier?.name || 'غير محدد'}
                       </div>
+                      {(customer?.phone || supplier?.phone) && (
+                        <div className="text-xs text-gray-500">
+                          {customer?.phone || supplier?.phone}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">
@@ -821,6 +885,14 @@ const InvoicesPage = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                        <PaymentIcon className="w-4 h-4" />
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {paymentMethodLabels[invoice.paymentMethod]}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         statusColors[invoice.status as keyof typeof statusColors]
                       }`}>
@@ -831,18 +903,31 @@ const InvoicesPage = () => {
                       <div className="text-sm text-gray-900 dark:text-white">
                         {new Date(invoice.createdAt).toLocaleDateString('ar-SA')}
                       </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(invoice.createdAt).toLocaleTimeString('ar-SA')}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => handleViewInvoice(invoice)}>
                           <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Printer className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="sm">
                           <Download className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
-                          <Send className="w-4 h-4" />
-                        </Button>
+                        {invoice.status === 'pending' && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-green-600"
+                            onClick={() => handleUpdateStatus(invoice.id, 'completed')}
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -852,6 +937,133 @@ const InvoicesPage = () => {
           </table>
         </div>
       </Card>
+
+      {/* View Invoice Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>تفاصيل الفاتورة - {viewingInvoice?.number}</DialogTitle>
+          </DialogHeader>
+          
+          {viewingInvoice && (
+            <div className="space-y-6">
+              {/* معلومات الفاتورة */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="p-4">
+                  <h4 className="font-semibold mb-3">معلومات الفاتورة</h4>
+                  <div className="space-y-2 text-sm">
+                    <div><strong>رقم الفاتورة:</strong> {viewingInvoice.number}</div>
+                    <div><strong>النوع:</strong> {viewingInvoice.type === 'sale' ? 'فاتورة بيع' : 'فاتورة شراء'}</div>
+                    <div><strong>التاريخ:</strong> {new Date(viewingInvoice.createdAt).toLocaleDateString('ar-SA')}</div>
+                    <div><strong>الحالة:</strong> {statusLabels[viewingInvoice.status as keyof typeof statusLabels]}</div>
+                    {viewingInvoice.dueDate && (
+                      <div><strong>تاريخ الاستحقاق:</strong> {new Date(viewingInvoice.dueDate).toLocaleDateString('ar-SA')}</div>
+                    )}
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <h4 className="font-semibold mb-3">المعلومات المالية</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>المجموع الفرعي:</span>
+                      <span>{viewingInvoice.subtotal.toFixed(2)} ر.س</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>الخصومات:</span>
+                      <span>-{viewingInvoice.discountAmount.toFixed(2)} ر.س</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>الضرائب:</span>
+                      <span>+{viewingInvoice.taxAmount.toFixed(2)} ر.س</span>
+                    </div>
+                    <div className="flex justify-between font-bold border-t pt-2">
+                      <span>المجموع النهائي:</span>
+                      <span>{viewingInvoice.totalAmount.toFixed(2)} ر.س</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>المبلغ المدفوع:</span>
+                      <span className="text-green-600">{viewingInvoice.paidAmount.toFixed(2)} ر.س</span>
+                    </div>
+                    {viewingInvoice.remainingAmount > 0 && (
+                      <div className="flex justify-between">
+                        <span>المبلغ المتبقي:</span>
+                        <span className="text-red-600">{viewingInvoice.remainingAmount.toFixed(2)} ر.س</span>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              </div>
+
+              {/* منتجات الفاتورة */}
+              <Card className="p-4">
+                <h4 className="font-semibold mb-3">منتجات الفاتورة</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
+                      <tr>
+                        <th className="px-4 py-2 text-right">المنتج</th>
+                        <th className="px-4 py-2 text-right">الكمية</th>
+                        <th className="px-4 py-2 text-right">السعر</th>
+                        <th className="px-4 py-2 text-right">الخصم</th>
+                        <th className="px-4 py-2 text-right">الضريبة</th>
+                        <th className="px-4 py-2 text-right">المجموع</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {viewingInvoice.items.map((item, index) => {
+                        const product = products.find(p => p.id === item.productId);
+                        return (
+                          <tr key={index} className="border-t">
+                            <td className="px-4 py-2">{product?.name || 'منتج محذوف'}</td>
+                            <td className="px-4 py-2">{item.quantity} {product?.unit}</td>
+                            <td className="px-4 py-2">{item.unitPrice.toFixed(2)} ر.س</td>
+                            <td className="px-4 py-2">
+                              {item.discountPercent > 0 ? `${item.discountPercent}% (${item.discountAmount.toFixed(2)} ر.س)` : '-'}
+                            </td>
+                            <td className="px-4 py-2">
+                              {item.taxPercent > 0 ? `${item.taxPercent}% (${item.taxAmount.toFixed(2)} ر.س)` : '-'}
+                            </td>
+                            <td className="px-4 py-2 font-bold">{item.totalPrice.toFixed(2)} ر.س</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+
+              {/* ملاحظات */}
+              {viewingInvoice.notes && (
+                <Card className="p-4">
+                  <h4 className="font-semibold mb-3">ملاحظات</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{viewingInvoice.notes}</p>
+                </Card>
+              )}
+
+              {/* أزرار الإجراءات */}
+              <div className="flex justify-end space-x-2 rtl:space-x-reverse">
+                <Button variant="outline" className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <Copy className="w-4 h-4" />
+                  <span>نسخ</span>
+                </Button>
+                <Button variant="outline" className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <Printer className="w-4 h-4" />
+                  <span>طباعة</span>
+                </Button>
+                <Button variant="outline" className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <Download className="w-4 h-4" />
+                  <span>تحميل PDF</span>
+                </Button>
+                <Button variant="outline" className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <Send className="w-4 h-4" />
+                  <span>إرسال</span>
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

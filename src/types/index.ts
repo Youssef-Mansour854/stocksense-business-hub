@@ -136,6 +136,10 @@ export interface Supplier {
   phone: string;
   email?: string;
   address?: string;
+  contactPerson?: string;
+  taxNumber?: string;
+  paymentTerms?: string;
+  notes?: string;
   balance: number;
   isActive: boolean;
   createdAt: string;
@@ -169,10 +173,15 @@ export interface InventoryMovement {
   productId: string;
   branchId?: string;
   warehouseId?: string;
+  fromBranchId?: string;
+  fromWarehouseId?: string;
+  toBranchId?: string;
+  toWarehouseId?: string;
   type: 'in' | 'out' | 'transfer';
   quantity: number;
   reason: string;
   referenceId?: string;
+  notes?: string;
   userId: string;
   createdAt: string;
 }
@@ -187,6 +196,9 @@ export interface Purchase {
   paidAmount: number;
   status: 'pending' | 'completed' | 'cancelled';
   items: PurchaseItem[];
+  paymentMethod?: 'cash' | 'card' | 'transfer' | 'credit';
+  notes?: string;
+  dueDate?: string;
   userId: string;
   createdAt: string;
   deletedAt?: string;
@@ -252,6 +264,9 @@ export interface Expense {
   amount: number;
   description: string;
   date: string;
+  paymentMethod?: 'cash' | 'card' | 'transfer';
+  reference?: string;
+  notes?: string;
   userId: string;
   createdAt: string;
   deletedAt?: string;

@@ -11,222 +11,223 @@ import * as z from 'zod';
 import { 
   Plus, Search, Edit, Trash2, User, Phone, Mail, 
   MapPin, DollarSign, Calendar, Eye, RotateCcw,
-  Archive, TrendingUp, Users as UsersIcon, CreditCard,
-  History, FileText, AlertCircle
+  Archive, TrendingUp, Users as UsersIcon, Building2,
+  History, FileText, AlertCircle, Package, ShoppingBag
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getCustomers, saveCustomers, getSales, getInvoices } from '@/utils/storage';
+import { getSuppliers, saveSuppliers, getPurchases, getProducts } from '@/utils/storage';
 import { getAuthenticatedUser } from '@/utils/auth';
-import { Customer, Sale, Invoice } from '@/types';
+import { Supplier, Purchase, Product } from '@/types';
 
-const customerSchema = z.object({
-  name: z.string().min(2, 'اسم العميل مطلوب'),
+const supplierSchema = z.object({
+  name: z.string().min(2, 'اسم المورد مطلوب'),
   phone: z.string().min(10, 'رقم الهاتف مطلوب'),
   email: z.string().email('البريد الإلكتروني غير صحيح').optional().or(z.literal('')),
   address: z.string().optional(),
-  creditLimit: z.number().min(0).default(0),
+  contactPerson: z.string().optional(),
+  taxNumber: z.string().optional(),
+  paymentTerms: z.string().optional(),
   notes: z.string().optional(),
 });
 
-const CustomersPage = () => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+const EnhancedSuppliersPage = () => {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-  const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
-  const [customerSales, setCustomerSales] = useState<Sale[]>([]);
-  const [customerInvoices, setCustomerInvoices] = useState<Invoice[]>([]);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [viewingSupplier, setViewingSupplier] = useState<Supplier | null>(null);
+  const [supplierPurchases, setSupplierPurchases] = useState<Purchase[]>([]);
   const [showDeleted, setShowDeleted] = useState(false);
   const { toast } = useToast();
   const user = getAuthenticatedUser();
 
-  const form = useForm<z.infer<typeof customerSchema>>({
-    resolver: zodResolver(customerSchema),
+  const form = useForm<z.infer<typeof supplierSchema>>({
+    resolver: zodResolver(supplierSchema),
     defaultValues: {
       name: '',
       phone: '',
       email: '',
       address: '',
-      creditLimit: 0,
+      contactPerson: '',
+      taxNumber: '',
+      paymentTerms: '',
       notes: '',
     },
   });
 
   useEffect(() => {
-    loadCustomers();
+    loadSuppliers();
   }, []);
 
-  const loadCustomers = () => {
+  const loadSuppliers = () => {
     if (!user) return;
     
-    const allCustomers = getCustomers();
-    const companyCustomers = allCustomers.filter(c => c.companyId === user.id);
+    const allSuppliers = getSuppliers();
+    const companySuppliers = allSuppliers.filter(s => s.companyId === user.id);
     
-    // حساب الأرصدة والمشتريات لكل عميل
-    const sales = getSales();
-    const invoices = getInvoices();
+    // حساب الأرصدة والمشتريات لكل مورد
+    const allPurchases = getPurchases();
+    const allProducts = getProducts();
     
-    const updatedCustomers = companyCustomers.map(customer => {
-      const customerSales = sales.filter(s => s.customerId === customer.id);
-      const customerInvoices = invoices.filter(i => i.customerId === customer.id);
+    const updatedSuppliers = companySuppliers.map(supplier => {
+      const supplierPurchases = allPurchases.filter(p => p.supplierId === supplier.id);
       
-      const totalPurchases = customerSales.reduce((sum, sale) => sum + sale.finalAmount, 0) +
-                           customerInvoices.filter(i => i.type === 'sale').reduce((sum, inv) => sum + inv.totalAmount, 0);
+      const totalPurchases = supplierPurchases.reduce((sum, purchase) => sum + purchase.totalAmount, 0);
+      const totalPaid = supplierPurchases.reduce((sum, purchase) => sum + purchase.paidAmount, 0);
+      const balance = totalPurchases - totalPaid;
       
-      const balance = customerInvoices
-        .filter(i => i.type === 'sale' && i.status === 'pending')
-        .reduce((sum, inv) => sum + inv.remainingAmount, 0);
-      
-      const lastPurchaseDate = [...customerSales, ...customerInvoices]
+      const lastPurchaseDate = supplierPurchases
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]?.createdAt;
       
+      const suppliedProducts = allProducts.filter(p => p.supplierId === supplier.id && p.isActive).length;
+      
       return {
-        ...customer,
+        ...supplier,
         totalPurchases,
         balance,
-        lastPurchaseDate
+        lastPurchaseDate,
+        suppliedProducts
       };
     });
     
-    setCustomers(updatedCustomers);
+    setSuppliers(updatedSuppliers);
+    setPurchases(allPurchases);
+    setProducts(allProducts);
   };
 
-  const onSubmit = (values: z.infer<typeof customerSchema>) => {
+  const onSubmit = (values: z.infer<typeof supplierSchema>) => {
     if (!user) return;
 
     try {
-      const allCustomers = getCustomers();
+      const allSuppliers = getSuppliers();
       
-      if (editingCustomer) {
-        // تحديث عميل موجود
-        const updatedCustomers = allCustomers.map(c => 
-          c.id === editingCustomer.id 
-            ? { ...c, ...values }
-            : c
+      if (editingSupplier) {
+        // تحديث مورد موجود
+        const updatedSuppliers = allSuppliers.map(s => 
+          s.id === editingSupplier.id 
+            ? { ...s, ...values }
+            : s
         );
-        saveCustomers(updatedCustomers);
+        saveSuppliers(updatedSuppliers);
         
         toast({
-          title: 'تم تحديث العميل بنجاح',
+          title: 'تم تحديث المورد بنجاح',
           description: `تم تحديث بيانات ${values.name}`,
         });
         
         setIsEditDialogOpen(false);
-        setEditingCustomer(null);
+        setEditingSupplier(null);
       } else {
-        // إضافة عميل جديد
-        const newCustomer: Customer = {
-          id: `customer_${Date.now()}`,
+        // إضافة مورد جديد
+        const newSupplier: Supplier = {
+          id: `supplier_${Date.now()}`,
           companyId: user.id,
           ...values,
           balance: 0,
-          totalPurchases: 0,
           isActive: true,
           createdAt: new Date().toISOString(),
         };
         
-        allCustomers.push(newCustomer);
-        saveCustomers(allCustomers);
+        allSuppliers.push(newSupplier);
+        saveSuppliers(allSuppliers);
         
         toast({
-          title: 'تم إضافة العميل بنجاح',
-          description: `تم إضافة ${values.name} إلى قائمة العملاء`,
+          title: 'تم إضافة المورد بنجاح',
+          description: `تم إضافة ${values.name} إلى قائمة الموردين`,
         });
         
         setIsAddDialogOpen(false);
       }
       
       form.reset();
-      loadCustomers();
+      loadSuppliers();
     } catch (error) {
       toast({
         title: 'خطأ',
-        description: 'حدث خطأ أثناء حفظ بيانات العميل',
+        description: 'حدث خطأ أثناء حفظ بيانات المورد',
         variant: 'destructive',
       });
     }
   };
 
-  const handleEdit = (customer: Customer) => {
-    setEditingCustomer(customer);
+  const handleEdit = (supplier: Supplier) => {
+    setEditingSupplier(supplier);
     form.reset({
-      name: customer.name,
-      phone: customer.phone,
-      email: customer.email || '',
-      address: customer.address || '',
-      creditLimit: (customer as any).creditLimit || 0,
-      notes: customer.notes || '',
+      name: supplier.name,
+      phone: supplier.phone,
+      email: supplier.email || '',
+      address: supplier.address || '',
+      contactPerson: (supplier as any).contactPerson || '',
+      taxNumber: (supplier as any).taxNumber || '',
+      paymentTerms: (supplier as any).paymentTerms || '',
+      notes: (supplier as any).notes || '',
     });
     setIsEditDialogOpen(true);
   };
 
-  const handleView = (customer: Customer) => {
-    setViewingCustomer(customer);
+  const handleView = (supplier: Supplier) => {
+    setViewingSupplier(supplier);
     
-    // تحميل مبيعات العميل
-    const sales = getSales();
-    const customerSalesData = sales.filter(s => s.customerId === customer.id);
-    setCustomerSales(customerSalesData);
-    
-    // تحميل فواتير العميل
-    const invoices = getInvoices();
-    const customerInvoicesData = invoices.filter(i => i.customerId === customer.id);
-    setCustomerInvoices(customerInvoicesData);
+    // تحميل مشتريات المورد
+    const supplierPurchasesData = purchases.filter(p => p.supplierId === supplier.id);
+    setSupplierPurchases(supplierPurchasesData);
     
     setIsViewDialogOpen(true);
   };
 
-  const handleDelete = (customerId: string) => {
+  const handleDelete = (supplierId: string) => {
     if (!user) return;
     
-    const allCustomers = getCustomers();
-    const updatedCustomers = allCustomers.map(c => 
-      c.id === customerId ? { ...c, isActive: false, deletedAt: new Date().toISOString() } : c
+    const allSuppliers = getSuppliers();
+    const updatedSuppliers = allSuppliers.map(s => 
+      s.id === supplierId ? { ...s, isActive: false, deletedAt: new Date().toISOString() } : s
     );
-    saveCustomers(updatedCustomers);
+    saveSuppliers(updatedSuppliers);
     
     toast({
-      title: 'تم حذف العميل',
-      description: 'تم نقل العميل إلى سجل المحذوفات',
+      title: 'تم حذف المورد',
+      description: 'تم نقل المورد إلى سجل المحذوفات',
     });
     
-    loadCustomers();
+    loadSuppliers();
   };
 
-  const handleRestore = (customerId: string) => {
+  const handleRestore = (supplierId: string) => {
     if (!user) return;
     
-    const allCustomers = getCustomers();
-    const updatedCustomers = allCustomers.map(c => 
-      c.id === customerId ? { ...c, isActive: true, deletedAt: undefined } : c
+    const allSuppliers = getSuppliers();
+    const updatedSuppliers = allSuppliers.map(s => 
+      s.id === supplierId ? { ...s, isActive: true, deletedAt: undefined } : s
     );
-    saveCustomers(updatedCustomers);
+    saveSuppliers(updatedSuppliers);
     
     toast({
-      title: 'تم استعادة العميل',
-      description: 'تم استعادة العميل بنجاح',
+      title: 'تم استعادة المورد',
+      description: 'تم استعادة المورد بنجاح',
     });
     
-    loadCustomers();
+    loadSuppliers();
   };
 
-  const filteredCustomers = customers.filter(customer => {
-    const matchesSearch = customer.name.includes(searchTerm) ||
-                         customer.phone.includes(searchTerm) ||
-                         (customer.email && customer.email.includes(searchTerm));
-    const matchesStatus = showDeleted ? !customer.isActive : customer.isActive;
+  const filteredSuppliers = suppliers.filter(supplier => {
+    const matchesSearch = supplier.name.includes(searchTerm) ||
+                         supplier.phone.includes(searchTerm) ||
+                         (supplier.email && supplier.email.includes(searchTerm));
+    const matchesStatus = showDeleted ? !supplier.isActive : supplier.isActive;
     
     return matchesSearch && matchesStatus;
   });
 
   const stats = {
-    total: customers.filter(c => c.isActive).length,
-    withBalance: customers.filter(c => c.isActive && c.balance > 0).length,
-    totalBalance: customers.filter(c => c.isActive).reduce((sum, c) => sum + c.balance, 0),
-    totalPurchases: customers.filter(c => c.isActive).reduce((sum, c) => sum + c.totalPurchases, 0),
-    deleted: customers.filter(c => !c.isActive).length,
+    total: suppliers.filter(s => s.isActive).length,
+    withBalance: suppliers.filter(s => s.isActive && s.balance > 0).length,
+    totalBalance: suppliers.filter(s => s.isActive).reduce((sum, s) => sum + s.balance, 0),
+    totalPurchases: suppliers.filter(s => s.isActive).reduce((sum, s) => sum + ((s as any).totalPurchases || 0), 0),
+    deleted: suppliers.filter(s => !s.isActive).length,
   };
 
   return (
@@ -234,19 +235,19 @@ const CustomersPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">إدارة العملاء</h2>
-          <p className="text-gray-600 dark:text-gray-400">إدارة بيانات العملاء والحسابات والمعاملات</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">إدارة الموردين المتقدمة</h2>
+          <p className="text-gray-600 dark:text-gray-400">إدارة بيانات الموردين والحسابات والمعاملات</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="flex items-center space-x-2 rtl:space-x-reverse">
               <Plus className="w-4 h-4" />
-              <span>إضافة عميل جديد</span>
+              <span>إضافة مورد جديد</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>إضافة عميل جديد</DialogTitle>
+              <DialogTitle>إضافة مورد جديد</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -257,11 +258,11 @@ const CustomersPage = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="flex items-center gap-2">
-                          <User className="w-4 h-4" />
-                          اسم العميل
+                          <Building2 className="w-4 h-4" />
+                          اسم المورد
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="اسم العميل" {...field} />
+                          <Input placeholder="اسم المورد" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -286,22 +287,41 @@ const CustomersPage = () => {
                   />
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Mail className="w-4 h-4" />
-                        البريد الإلكتروني (اختياري)
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="example@domain.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          البريد الإلكتروني (اختياري)
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="example@domain.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="contactPerson"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          الشخص المسؤول
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="اسم الشخص المسؤول" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -320,28 +340,35 @@ const CustomersPage = () => {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="creditLimit"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <CreditCard className="w-4 h-4" />
-                        الحد الائتماني
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.01"
-                          placeholder="0.00" 
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="taxNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>الرقم الضريبي</FormLabel>
+                        <FormControl>
+                          <Input placeholder="الرقم الضريبي" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="paymentTerms"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>شروط الدفع</FormLabel>
+                        <FormControl>
+                          <Input placeholder="مثال: 30 يوم" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -350,7 +377,7 @@ const CustomersPage = () => {
                     <FormItem>
                       <FormLabel>ملاحظات (اختياري)</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="ملاحظات حول العميل" {...field} />
+                        <Textarea placeholder="ملاحظات حول المورد" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -362,7 +389,7 @@ const CustomersPage = () => {
                     إلغاء
                   </Button>
                   <Button type="submit">
-                    إضافة العميل
+                    إضافة المورد
                   </Button>
                 </div>
               </form>
@@ -377,7 +404,7 @@ const CustomersPage = () => {
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <UsersIcon className="w-8 h-8 text-blue-600" />
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي العملاء</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي الموردين</p>
               <p className="text-2xl font-bold">{stats.total}</p>
             </div>
           </div>
@@ -386,7 +413,7 @@ const CustomersPage = () => {
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <AlertCircle className="w-8 h-8 text-red-600" />
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">عملاء لديهم رصيد</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">موردين لديهم رصيد</p>
               <p className="text-2xl font-bold">{stats.withBalance}</p>
             </div>
           </div>
@@ -426,7 +453,7 @@ const CustomersPage = () => {
           <div className="relative flex-1">
             <Search className="absolute right-3 rtl:left-3 rtl:right-auto top-3 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="البحث في العملاء (الاسم، الهاتف، البريد الإلكتروني)"
+              placeholder="البحث في الموردين (الاسم، الهاتف، البريد الإلكتروني)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10 rtl:pl-10 rtl:pr-3"
@@ -438,19 +465,19 @@ const CustomersPage = () => {
             className="flex items-center space-x-2 rtl:space-x-reverse"
           >
             <Archive className="w-4 h-4" />
-            <span>{showDeleted ? 'العملاء النشطين' : 'المحذوفات'}</span>
+            <span>{showDeleted ? 'الموردين النشطين' : 'المحذوفات'}</span>
           </Button>
         </div>
       </Card>
 
-      {/* Customers Table */}
+      {/* Suppliers Table */}
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  العميل
+                  المورد
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   معلومات التواصل
@@ -462,6 +489,9 @@ const CustomersPage = () => {
                   إجمالي المشتريات
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  المنتجات المورّدة
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   آخر شراء
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -470,16 +500,16 @@ const CustomersPage = () => {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredCustomers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+              {filteredSuppliers.map((supplier) => (
+                <tr key={supplier.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {customer.name}
+                        {supplier.name}
                       </div>
-                      {customer.notes && (
-                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-32">
-                          {customer.notes}
+                      {(supplier as any).contactPerson && (
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          مسؤول: {(supplier as any).contactPerson}
                         </div>
                       )}
                     </div>
@@ -488,55 +518,60 @@ const CustomersPage = () => {
                     <div className="text-sm text-gray-900 dark:text-white">
                       <div className="flex items-center mb-1">
                         <Phone className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
-                        {customer.phone}
+                        {supplier.phone}
                       </div>
-                      {customer.email && (
+                      {supplier.email && (
                         <div className="flex items-center">
                           <Mail className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
-                          <span className="truncate max-w-32">{customer.email}</span>
+                          <span className="truncate max-w-32">{supplier.email}</span>
                         </div>
                       )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-medium ${
-                      customer.balance > 0 ? 'text-red-600' : 
-                      customer.balance < 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'
+                      supplier.balance > 0 ? 'text-red-600' : 
+                      supplier.balance < 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'
                     }`}>
-                      {customer.balance.toLocaleString()} ر.س
+                      {supplier.balance.toLocaleString()} ر.س
                     </div>
-                    {customer.balance > 0 && (
-                      <div className="text-xs text-red-500">مستحق</div>
+                    {supplier.balance > 0 && (
+                      <div className="text-xs text-red-500">مستحق للمورد</div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900 dark:text-white">
-                      {customer.totalPurchases.toLocaleString()} ر.س
+                      {((supplier as any).totalPurchases || 0).toLocaleString()} ر.س
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900 dark:text-white">
-                      {customer.lastPurchaseDate ? 
-                        new Date(customer.lastPurchaseDate).toLocaleDateString('ar-SA') : 
+                      {(supplier as any).suppliedProducts || 0} منتج
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900 dark:text-white">
+                      {(supplier as any).lastPurchaseDate ? 
+                        new Date((supplier as any).lastPurchaseDate).toLocaleDateString('ar-SA') : 
                         'لا يوجد'
                       }
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                      {customer.isActive ? (
+                      {supplier.isActive ? (
                         <>
-                          <Button variant="ghost" size="sm" onClick={() => handleView(customer)}>
+                          <Button variant="ghost" size="sm" onClick={() => handleView(supplier)}>
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleEdit(customer)}>
+                          <Button variant="ghost" size="sm" onClick={() => handleEdit(supplier)}>
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
                             className="text-red-600"
-                            onClick={() => handleDelete(customer.id)}
+                            onClick={() => handleDelete(supplier.id)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -546,7 +581,7 @@ const CustomersPage = () => {
                           variant="ghost" 
                           size="sm" 
                           className="text-green-600"
-                          onClick={() => handleRestore(customer.id)}
+                          onClick={() => handleRestore(supplier.id)}
                         >
                           <RotateCcw className="w-4 h-4" />
                         </Button>
@@ -564,7 +599,7 @@ const CustomersPage = () => {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>تعديل بيانات العميل</DialogTitle>
+            <DialogTitle>تعديل بيانات المورد</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -575,11 +610,11 @@ const CustomersPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        اسم العميل
+                        <Building2 className="w-4 h-4" />
+                        اسم المورد
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="اسم العميل" {...field} />
+                        <Input placeholder="اسم المورد" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -621,29 +656,6 @@ const CustomersPage = () => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="creditLimit"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <CreditCard className="w-4 h-4" />
-                      الحد الائتماني
-                    </FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.01"
-                        placeholder="0.00" 
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <div className="flex justify-end space-x-2 rtl:space-x-reverse">
                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                   إلغاء
@@ -657,28 +669,30 @@ const CustomersPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* View Customer Dialog */}
+      {/* View Supplier Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>تفاصيل العميل - {viewingCustomer?.name}</DialogTitle>
+            <DialogTitle>تفاصيل المورد - {viewingSupplier?.name}</DialogTitle>
           </DialogHeader>
           
-          {viewingCustomer && (
+          {viewingSupplier && (
             <div className="space-y-6">
-              {/* معلومات العميل */}
+              {/* معلومات المورد */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="p-4">
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <User className="w-4 h-4" />
+                    <Building2 className="w-4 h-4" />
                     المعلومات الأساسية
                   </h4>
                   <div className="space-y-2 text-sm">
-                    <div><strong>الاسم:</strong> {viewingCustomer.name}</div>
-                    <div><strong>الهاتف:</strong> {viewingCustomer.phone}</div>
-                    {viewingCustomer.email && <div><strong>البريد:</strong> {viewingCustomer.email}</div>}
-                    {viewingCustomer.address && <div><strong>العنوان:</strong> {viewingCustomer.address}</div>}
-                    <div><strong>تاريخ التسجيل:</strong> {new Date(viewingCustomer.createdAt).toLocaleDateString('ar-SA')}</div>
+                    <div><strong>الاسم:</strong> {viewingSupplier.name}</div>
+                    <div><strong>الهاتف:</strong> {viewingSupplier.phone}</div>
+                    {viewingSupplier.email && <div><strong>البريد:</strong> {viewingSupplier.email}</div>}
+                    {viewingSupplier.address && <div><strong>العنوان:</strong> {viewingSupplier.address}</div>}
+                    {(viewingSupplier as any).contactPerson && <div><strong>الشخص المسؤول:</strong> {(viewingSupplier as any).contactPerson}</div>}
+                    {(viewingSupplier as any).taxNumber && <div><strong>الرقم الضريبي:</strong> {(viewingSupplier as any).taxNumber}</div>}
+                    <div><strong>تاريخ التسجيل:</strong> {new Date(viewingSupplier.createdAt).toLocaleDateString('ar-SA')}</div>
                   </div>
                 </Card>
 
@@ -690,18 +704,24 @@ const CustomersPage = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span>الرصيد المستحق:</span>
-                      <span className={`font-bold ${viewingCustomer.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        {viewingCustomer.balance.toLocaleString()} ر.س
+                      <span className={`font-bold ${viewingSupplier.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {viewingSupplier.balance.toLocaleString()} ر.س
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>إجمالي المشتريات:</span>
-                      <span className="font-bold text-green-600">{viewingCustomer.totalPurchases.toLocaleString()} ر.س</span>
+                      <span className="font-bold text-green-600">{((viewingSupplier as any).totalPurchases || 0).toLocaleString()} ر.س</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>الحد الائتماني:</span>
-                      <span className="font-bold">{((viewingCustomer as any).creditLimit || 0).toLocaleString()} ر.س</span>
+                      <span>المنتجات المورّدة:</span>
+                      <span className="font-bold">{(viewingSupplier as any).suppliedProducts || 0} منتج</span>
                     </div>
+                    {(viewingSupplier as any).paymentTerms && (
+                      <div className="flex justify-between">
+                        <span>شروط الدفع:</span>
+                        <span className="font-bold">{(viewingSupplier as any).paymentTerms}</span>
+                      </div>
+                    )}
                   </div>
                 </Card>
               </div>
@@ -710,49 +730,40 @@ const CustomersPage = () => {
               <div>
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
                   <History className="w-4 h-4" />
-                  تاريخ المعاملات
+                  تاريخ المشتريات
                 </h4>
                 
                 <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {[...customerSales, ...customerInvoices]
+                  {supplierPurchases
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .slice(0, 10)
-                    .map((transaction, index) => {
-                      const isSale = 'invoiceNumber' in transaction;
-                      const isInvoice = 'number' in transaction;
-                      
-                      return (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded">
-                          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                              {isSale ? <FileText className="w-4 h-4 text-blue-600" /> : <Receipt className="w-4 h-4 text-green-600" />}
-                            </div>
-                            <div>
-                              <div className="font-medium">
-                                {isSale ? (transaction as Sale).invoiceNumber : (transaction as Invoice).number}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {new Date(transaction.createdAt).toLocaleDateString('ar-SA')}
-                              </div>
-                            </div>
+                    .map((purchase, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded">
+                        <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                            <ShoppingBag className="w-4 h-4 text-blue-600" />
                           </div>
-                          <div className="text-left rtl:text-right">
-                            <div className="font-bold">
-                              {isSale ? (transaction as Sale).finalAmount : (transaction as Invoice).totalAmount} ر.س
+                          <div>
+                            <div className="font-medium">{purchase.invoiceNumber}</div>
+                            <div className="text-sm text-gray-500">
+                              {new Date(purchase.createdAt).toLocaleDateString('ar-SA')}
                             </div>
-                            {isInvoice && (transaction as Invoice).remainingAmount > 0 && (
-                              <div className="text-xs text-red-600">
-                                متبقي: {(transaction as Invoice).remainingAmount} ر.س
-                              </div>
-                            )}
                           </div>
                         </div>
-                      );
-                    })}
+                        <div className="text-left rtl:text-right">
+                          <div className="font-bold">{purchase.totalAmount.toLocaleString()} ر.س</div>
+                          {(purchase.totalAmount - purchase.paidAmount) > 0 && (
+                            <div className="text-xs text-red-600">
+                              متبقي: {(purchase.totalAmount - purchase.paidAmount).toLocaleString()} ر.س
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   
-                  {customerSales.length === 0 && customerInvoices.length === 0 && (
+                  {supplierPurchases.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
-                      لا توجد معاملات مع هذا العميل
+                      لا توجد مشتريات من هذا المورد
                     </div>
                   )}
                 </div>
@@ -765,4 +776,4 @@ const CustomersPage = () => {
   );
 };
 
-export default CustomersPage;
+export default EnhancedSuppliersPage;
