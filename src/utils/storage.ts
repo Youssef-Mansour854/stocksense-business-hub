@@ -1,5 +1,5 @@
 // نظام تخزين البيانات المحلي
-import { User, Company, Product, Sale, Purchase, Expense, Stock, Branch, Warehouse, Supplier, Category } from '@/types';
+import { User, Company, Product, Sale, Purchase, Expense, Stock, Branch, Warehouse, Supplier, Category, Customer, Invoice, Payment } from '@/types';
 
 const STORAGE_KEYS = {
   CURRENT_USER: 'stocksense_current_user',
@@ -13,6 +13,9 @@ const STORAGE_KEYS = {
   WAREHOUSES: 'stocksense_warehouses',
   SUPPLIERS: 'stocksense_suppliers',
   CATEGORIES: 'stocksense_categories',
+  CUSTOMERS: 'stocksense_customers',
+  INVOICES: 'stocksense_invoices',
+  PAYMENTS: 'stocksense_payments',
   USERS: 'stocksense_users',
   SETTINGS: 'stocksense_settings'
 };
@@ -167,6 +170,36 @@ export const getCategories = (): Category[] => {
   return getFromStorage<Category[]>(STORAGE_KEYS.CATEGORIES, []);
 };
 
+// حفظ العملاء
+export const saveCustomers = (customers: Customer[]): void => {
+  saveToStorage(STORAGE_KEYS.CUSTOMERS, customers);
+};
+
+// استرجاع العملاء
+export const getCustomers = (): Customer[] => {
+  return getFromStorage<Customer[]>(STORAGE_KEYS.CUSTOMERS, []);
+};
+
+// حفظ الفواتير
+export const saveInvoices = (invoices: Invoice[]): void => {
+  saveToStorage(STORAGE_KEYS.INVOICES, invoices);
+};
+
+// استرجاع الفواتير
+export const getInvoices = (): Invoice[] => {
+  return getFromStorage<Invoice[]>(STORAGE_KEYS.INVOICES, []);
+};
+
+// حفظ المدفوعات
+export const savePayments = (payments: Payment[]): void => {
+  saveToStorage(STORAGE_KEYS.PAYMENTS, payments);
+};
+
+// استرجاع المدفوعات
+export const getPayments = (): Payment[] => {
+  return getFromStorage<Payment[]>(STORAGE_KEYS.PAYMENTS, []);
+};
+
 // حفظ المستخدمين
 export const saveUsers = (users: User[]): void => {
   saveToStorage(STORAGE_KEYS.USERS, users);
@@ -267,6 +300,9 @@ export const initializeCompanyData = (user: User): void => {
   saveExpenses([]);
   saveStock([]);
   saveSuppliers([]);
+  saveCustomers([]);
+  saveInvoices([]);
+  savePayments([]);
 };
 
 export { STORAGE_KEYS };

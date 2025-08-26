@@ -15,6 +15,72 @@ export interface User {
   deletedAt?: string;
 }
 
+export interface Customer {
+  id: string;
+  companyId: string;
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+  balance: number; // الرصيد المستحق
+  totalPurchases: number; // إجمالي المشتريات
+  lastPurchaseDate?: string;
+  notes?: string;
+  isActive: boolean;
+  createdAt: string;
+  deletedAt?: string;
+}
+
+export interface Invoice {
+  id: string;
+  companyId: string;
+  type: 'sale' | 'purchase';
+  number: string;
+  customerId?: string;
+  supplierId?: string;
+  branchId?: string;
+  warehouseId?: string;
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  paidAmount: number;
+  remainingAmount: number;
+  paymentMethod: 'cash' | 'card' | 'transfer' | 'credit';
+  status: 'draft' | 'pending' | 'completed' | 'cancelled' | 'refunded';
+  items: InvoiceItem[];
+  notes?: string;
+  dueDate?: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
+}
+
+export interface InvoiceItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  discountPercent: number;
+  discountAmount: number;
+  taxPercent: number;
+  taxAmount: number;
+  totalPrice: number;
+}
+
+export interface Payment {
+  id: string;
+  companyId: string;
+  invoiceId: string;
+  amount: number;
+  paymentMethod: 'cash' | 'card' | 'transfer';
+  reference?: string;
+  notes?: string;
+  userId: string;
+  createdAt: string;
+}
+
 export interface Company {
   id: string;
   name: string;
