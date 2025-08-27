@@ -187,6 +187,80 @@ const ComprehensiveReportsPage = () => {
       .slice(0, 10);
   };
 
+  const getMonthlySalesData = () => {
+    const filtered = getFilteredData();
+    const monthlyData: { [key: string]: { sales: number; profit: number; transactions: number } } = {};
+    
+    filtered.sales.forEach(sale => {
+      const date = new Date(sale.createdAt);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = { sales: 0, profit: 0, transactions: 0 };
+      }
+      
+      monthlyData[monthKey].sales += sale.finalAmount;
+      monthlyData[monthKey].profit += sale.finalAmount - (sale.totalAmount || 0);
+      monthlyData[monthKey].transactions += 1;
+    });
+    
+    return Object.entries(monthlyData)
+      .map(([month, data]) => ({
+        month: new Date(month + '-01').toLocaleDateString('ar-SA', { year: 'numeric', month: 'long' }),
+        sales: data.sales,
+        profit: data.profit,
+        transactions: data.transactions,
+        avgTransaction: data.transactions > 0 ? data.sales / data.transactions : 0
+      }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+  };
+
+  const getHourlySalesData = () => {
+    const filtered = getFilteredData();
+    const hourlyData: { [hour: number]: { sales: number; transactions: number } } = {};
+    
+    for (let i = 0; i < 24; i++) {
+      hourlyData[i] = { sales: 0, transactions: 0 };
+    }
+    
+    filtered.sales.forEach(sale => {
+      const hour = new Date(sale.createdAt).getHours();
+      hourlyData[hour].sales += sale.finalAmount;
+      hourlyData[hour].transactions += 1;
+    });
+    
+    return Object.entries(hourlyData).map(([hour, data]) => ({
+      hour: `${hour}:00`,
+      sales: data.sales,
+      transactions: data.transactions
+    }));
+  };
+
+  const getSalesByCategory = () => {
+    const filtered = getFilteredData();
+    const categoryData: { [category: string]: { sales: number; quantity: number } } = {};
+    
+    filtered.sales.forEach(sale => {
+      sale.items.forEach(item => {
+        const product = products.find(p => p.id === item.productId);
+        const category = product?.categoryId || 'other';
+        
+        if (!categoryData[category]) {
+          categoryData[category] = { sales: 0, quantity: 0 };
+        }
+        
+        categoryData[category].sales += item.totalPrice;
+        categoryData[category].quantity += item.quantity;
+      });
+    });
+    
+    return Object.entries(categoryData).map(([category, data]) => ({
+      name: category === 'other' ? 'أخرى' : category,
+      sales: data.sales,
+      quantity: data.quantity
+    }));
+  };
+
   const getExpensesByCategory = () => {
     const filtered = getFilteredData();
     const categoryExpenses: { [category: string]: number } = {};
@@ -243,6 +317,9 @@ const ComprehensiveReportsPage = () => {
   const topProducts = getTopSellingProducts();
   const expensesByCategory = getExpensesByCategory();
   const inventoryReport = getInventoryReport();
+  const monthlySales = getMonthlySalesData();
+  const hourlySales = getHourlySalesData();
+  const salesByCategory = getSalesByCategory();
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C'];
 
@@ -432,7 +509,23 @@ const ComprehensiveReportsPage = () => {
         {/* Financial Reports */}
         <TabsContent value="financial" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Daily Sales Chart */}
+            {/* Monthly Sales Trend */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">اتجاه المبيعات الشهرية</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={monthlySales}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="sales" stackId="1" stroke="#10B981" fill="#10B981" fillOpacity={0.6} name="المبيعات" />
+                  <Area type="monotone" dataKey="profit" stackId="2" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.6} name="الربح" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Daily Sales Performance */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">الأداء اليومي</h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -442,118 +535,150 @@ const ComprehensiveReportsPage = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="sales" stroke="#10B981" name="المبيعات" />
-                  <Line type="monotone" dataKey="expenses" stroke="#EF4444" name="المصروفات" />
-                  <Line type="monotone" dataKey="profit" stroke="#3B82F6" name="الربح" />
+                  <Line type="monotone" dataKey="sales" stroke="#10B981" name="المبيعات" strokeWidth={3} />
+                  <Line type="monotone" dataKey="profit" stroke="#3B82F6" name="الربح" strokeWidth={3} />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
 
-            {/* Expenses by Category */}
+            {/* Hourly Sales Pattern */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">المصروفات حسب الفئة</h3>
+              <h3 className="text-lg font-semibold mb-4">نمط المبيعات بالساعة</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={hourlySales}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="hour" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="sales" fill="#10B981" name="المبيعات" />
+                  <Bar dataKey="transactions" fill="#3B82F6" name="عدد المعاملات" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Sales by Category */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">المبيعات حسب الفئة</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <RechartsPieChart>
                   <Pie
-                    data={expensesByCategory}
+                    data={salesByCategory}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
+                    outerRadius={100}
                     fill="#8884d8"
-                    dataKey="value"
+                    dataKey="sales"
                   >
-                    {expensesByCategory.map((entry, index) => (
+                    {salesByCategory.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(value) => [`${Number(value).toLocaleString()} ر.س`, 'المبيعات']} />
                 </RechartsPieChart>
               </ResponsiveContainer>
             </Card>
           </div>
-
-          {/* Financial Summary Table */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">الملخص المالي التفصيلي</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded">
-                  <span className="font-medium">إجمالي المبيعات:</span>
-                  <span className="font-bold text-green-600">{summary.totalSales.toLocaleString()} ر.س</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 rounded">
-                  <span className="font-medium">إجمالي المشتريات:</span>
-                  <span className="font-bold text-red-600">{summary.totalPurchases.toLocaleString()} ر.س</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded">
-                  <span className="font-medium">إجمالي المصروفات:</span>
-                  <span className="font-bold text-orange-600">{summary.totalExpenses.toLocaleString()} ر.س</span>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className={`flex justify-between items-center p-3 rounded ${
-                  summary.netProfit >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'
-                }`}>
-                  <span className="font-medium">صافي الربح:</span>
-                  <span className={`font-bold ${summary.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {summary.netProfit.toLocaleString()} ر.س
-                  </span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
-                  <span className="font-medium">عدد المعاملات:</span>
-                  <span className="font-bold text-blue-600">{summary.transactionCount}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded">
-                  <span className="font-medium">متوسط الفاتورة:</span>
-                  <span className="font-bold text-purple-600">{summary.averageTransaction.toFixed(2)} ر.س</span>
-                </div>
-              </div>
-            </div>
-          </Card>
         </TabsContent>
 
         {/* Sales Reports */}
         <TabsContent value="sales" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Top Selling Products */}
+            {/* Top Selling Products Chart */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">أكثر المنتجات مبيعاً</h3>
-              <div className="space-y-3 max-h-80 overflow-y-auto">
-                {topProducts.map((product, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded">
-                    <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 font-bold text-sm">#{index + 1}</span>
-                      </div>
-                      <div>
-                        <div className="font-medium">{product.name}</div>
-                        <div className="text-sm text-gray-500">{product.quantity} {product.unit}</div>
-                      </div>
-                    </div>
-                    <div className="text-left rtl:text-right">
-                      <div className="font-bold text-green-600">{product.revenue.toLocaleString()} ر.س</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <h3 className="text-lg font-semibold mb-4">أفضل المنتجات مبيعاً</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topProducts.slice(0, 8)} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={100} />
+                  <Tooltip formatter={(value: any) => [`${Number(value).toLocaleString()} ر.س`, 'الإيرادات']} />
+                  <Bar dataKey="revenue" fill="#10B981" />
+                </BarChart>
+              </ResponsiveContainer>
             </Card>
 
-            {/* Sales Trend */}
+            {/* Sales vs Profit Comparison */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">اتجاه المبيعات</h3>
+              <h3 className="text-lg font-semibold mb-4">مقارنة المبيعات والأرباح</h3>
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={dailyData}>
+                <AreaChart data={monthlySales}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
+                  <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Area type="monotone" dataKey="sales" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
+                  <Legend />
+                  <Area type="monotone" dataKey="sales" stroke="#10B981" fill="#10B981" fillOpacity={0.3} name="المبيعات" />
+                  <Area type="monotone" dataKey="profit" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.3} name="الربح" />
                 </AreaChart>
               </ResponsiveContainer>
             </Card>
+
+            {/* Average Transaction Value */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">متوسط قيمة المعاملة الشهرية</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={monthlySales}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip formatter={(value: any) => [`${Number(value).toLocaleString()} ر.س`, 'متوسط المعاملة']} />
+                  <Line type="monotone" dataKey="avgTransaction" stroke="#8B5CF6" strokeWidth={3} name="متوسط قيمة المعاملة" />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Transaction Count Trend */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">اتجاه عدد المعاملات</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlySales}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="transactions" fill="#3B82F6" name="عدد المعاملات" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
           </div>
+
+          {/* Top Products Table */}
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">تفاصيل أفضل المنتجات</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 dark:bg-gray-800">
+                    <th className="p-3 text-right">الترتيب</th>
+                    <th className="p-3 text-right">اسم المنتج</th>
+                    <th className="p-3 text-right">الكمية المباعة</th>
+                    <th className="p-3 text-right">الإيرادات</th>
+                    <th className="p-3 text-right">متوسط السعر</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topProducts.map((product, index) => (
+                    <tr key={index} className="border-b border-gray-200 dark:border-gray-700">
+                      <td className="p-3">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold ${
+                          index < 3 ? 'bg-yellow-500' : 'bg-gray-500'
+                        }`}>
+                          {index + 1}
+                        </div>
+                      </td>
+                      <td className="p-3 font-medium">{product.name}</td>
+                      <td className="p-3">{product.quantity} {product.unit}</td>
+                      <td className="p-3 text-green-600 font-bold">{product.revenue.toLocaleString()} ر.س</td>
+                      <td className="p-3">{(product.revenue / product.quantity).toLocaleString()} ر.س</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         </TabsContent>
 
         {/* Inventory Reports */}
