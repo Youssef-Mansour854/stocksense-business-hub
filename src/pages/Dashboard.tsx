@@ -4,14 +4,12 @@ import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import DashboardHome from '@/components/dashboard/DashboardHome';
 import ProductsPage from '@/components/dashboard/ProductsPage';
 import SalesPage from '@/components/dashboard/SalesPage';
-import EnhancedPurchasesPage from '@/components/dashboard/EnhancedPurchasesPage';
+import PurchasesPage from '@/components/dashboard/PurchasesPage';
 import AdvancedInventoryPage from '@/components/dashboard/AdvancedInventoryPage';
 import CustomersPage from '@/components/dashboard/CustomersPage';
-import InvoicesPage from '@/components/dashboard/InvoicesPage';
 import NotificationsPage from '@/components/dashboard/NotificationsPage';
 import EnhancedExpensesPage from '@/components/dashboard/EnhancedExpensesPage';
 import ComprehensiveReportsPage from '@/components/dashboard/ComprehensiveReportsPage';
-import UsersPage from '@/components/dashboard/UsersPage';
 import SettingsPage from '@/components/dashboard/SettingsPage';
 import { isAuthenticated, getAuthenticatedUser } from '@/utils/auth';
 import { User } from '@/types';
@@ -53,14 +51,12 @@ const Dashboard = () => {
         <Route path="/" element={<DashboardHome />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/sales" element={<SalesPage />} />
-        <Route path="/purchases" element={<EnhancedPurchasesPage />} />
-        <Route path="/invoices" element={<InvoicesPage />} />
+        <Route path="/purchases" element={<PurchasesPage />} />
         <Route path="/inventory" element={<AdvancedInventoryPage />} />
         <Route path="/customers" element={<CustomersPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/expenses" element={<EnhancedExpensesPage />} />
         <Route path="/reports" element={<ComprehensiveReportsPage />} />
-        <Route path="/users" element={<UsersPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </DashboardLayout>
