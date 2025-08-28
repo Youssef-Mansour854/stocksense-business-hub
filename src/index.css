@@ -7,48 +7,110 @@
 
 @layer base {
   :root {
+    /* Core colors with enhanced saturation */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 213 94% 68%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    /* Modern primary palette - Electric Blue to Purple */
+    --primary: 239 84% 67%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --primary-glow: 239 84% 75%;
+    
+    /* Enhanced secondary colors */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    
+    /* Muted colors with better contrast */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 45.1%;
+    
+    /* Accent colors - Vibrant cyan */
+    --accent: 199 89% 48%;
+    --accent-foreground: 0 0% 98%;
+    
+    /* Success colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    
+    /* Warning colors */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+    
+    /* Destructive colors */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 213 94% 68%;
-    --radius: 0.75rem;
+    
+    /* Border and input */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 239 84% 67%;
+    --radius: 1rem;
+    
+    /* Gradient variables */
+    --gradient-primary: linear-gradient(135deg, hsl(239 84% 67%), hsl(260 70% 55%));
+    --gradient-secondary: linear-gradient(135deg, hsl(199 89% 48%), hsl(239 84% 67%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%));
+    --gradient-glass: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    
+    /* Shadow system */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-glow: 0 0 40px rgba(239, 68, 68, 0.3);
+    --shadow-primary: 0 8px 32px rgba(99, 102, 241, 0.3);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 213 94% 68%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Dark mode with deeper blacks and enhanced colors */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Primary colors remain vibrant in dark mode */
+    --primary: 239 84% 67%;
+    --primary-foreground: 240 10% 3.9%;
+    --primary-glow: 239 84% 75%;
+    
+    /* Dark secondary */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    
+    /* Dark muted */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    
+    /* Dark accent */
+    --accent: 199 89% 48%;
+    --accent-foreground: 0 0% 98%;
+    
+    /* Enhanced success in dark */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    
+    /* Enhanced warning in dark */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+    
+    /* Dark destructive */
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 213 94% 68%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Dark borders */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 239 84% 67%;
+    
+    /* Dark gradient overrides */
+    --gradient-glass: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.4);
   }
 }
 
@@ -77,19 +139,39 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-hero-gradient text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl;
+    @apply bg-gradient-primary text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-primary/30 active:scale-95;
   }
   
   .btn-secondary {
-    @apply bg-white/10 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-white/20;
+    @apply bg-gradient-glass backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-500 hover:bg-white/20 hover:scale-105;
+  }
+  
+  .btn-glass {
+    @apply bg-gradient-glass backdrop-blur-xl border border-white/20 text-foreground px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:bg-white/30 hover:scale-105;
   }
   
   .section-padding {
-    @apply py-16 px-4 sm:px-6 lg:px-8;
+    @apply py-20 px-4 sm:px-6 lg:px-8;
   }
   
   .container-custom {
     @apply max-w-7xl mx-auto;
+  }
+  
+  .card-modern {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105;
+  }
+  
+  .card-glass {
+    @apply bg-gradient-glass backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+  
+  .glow-effect {
+    @apply shadow-2xl shadow-primary/30;
   }
 
   /* Dashboard Layout Styles */

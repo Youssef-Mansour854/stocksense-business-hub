@@ -42,16 +42,16 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
   };
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/20 dark:border-gray-700/20">
+    <header className="fixed top-0 w-full z-50 bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border-b border-white/10">
       <div className="container-custom">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-4 rtl:space-x-reverse">
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
-              <div className="w-8 h-8 bg-hero-gradient rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
+          <Link to="/" className="flex items-center space-x-4 rtl:space-x-reverse group">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <span className="text-white font-bold text-2xl">S</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">
+              <span className="text-2xl font-bold text-gradient">
                 StockSense
               </span>
             </div>
@@ -59,13 +59,15 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
-            {menuItems[language].map((item) => (
+            {menuItems[language].map((item, index) => (
               <a
                 key={item.name}
                 href={item.href}
-                className="text-gray-600 dark:text-gray-300 hover:text-stocksense-blue dark:hover:text-blue-400 transition-colors duration-200 font-medium"
+                className="relative text-foreground/80 hover:text-primary transition-all duration-300 font-medium group py-2"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                {item.name}
+                <span className="relative z-10">{item.name}</span>
+                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-primary transition-all duration-300 group-hover:w-full"></div>
               </a>
             ))}
           </nav>
@@ -76,7 +78,7 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
               variant="ghost"
               size="sm"
               onClick={toggleLanguage}
-              className="text-gray-600 dark:text-gray-300"
+              className="text-foreground/70 hover:text-primary hover:bg-primary/10 rounded-xl transition-all duration-300"
             >
               <Globe className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2" />
               {language === 'ar' ? 'EN' : 'AR'}
@@ -86,19 +88,19 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
               variant="ghost"
               size="sm"
               onClick={toggleDarkMode}
-              className="text-gray-600 dark:text-gray-300"
+              className="text-foreground/70 hover:text-primary hover:bg-primary/10 rounded-xl transition-all duration-300"
             >
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             
             <Link to="/login">
-              <Button variant="ghost" className="text-gray-600 dark:text-gray-300">
+              <Button variant="ghost" className="text-foreground/70 hover:text-primary rounded-xl">
                 {text[language].login}
               </Button>
             </Link>
             
             <Link to="/register">
-              <Button className="btn-primary">
+              <Button className="btn-primary animate-glow">
                 {text[language].demo}
               </Button>
             </Link>
@@ -110,7 +112,7 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
               variant="ghost"
               size="sm"
               onClick={toggleDarkMode}
-              className="text-gray-600 dark:text-gray-300"
+              className="text-foreground/70 hover:text-primary rounded-xl"
             >
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
@@ -119,7 +121,7 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
               variant="ghost"
               size="sm"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-600 dark:text-gray-300"
+              className="text-foreground/70 hover:text-primary rounded-xl"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </Button>
@@ -128,21 +130,22 @@ const Header = ({ darkMode, toggleDarkMode, language, toggleLanguage }: HeaderPr
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 animate-fade-in-up">
+          <div className="md:hidden py-6 animate-fade-in-up bg-gradient-glass backdrop-blur-xl rounded-2xl border border-white/10 mt-4 mb-4">
             <nav className="flex flex-col space-y-4">
-              {menuItems[language].map((item) => (
+              {menuItems[language].map((item, index) => (
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-600 dark:text-gray-300 hover:text-stocksense-blue dark:hover:text-blue-400 transition-colors duration-200 font-medium px-4 py-2"
+                  className="text-foreground/80 hover:text-primary transition-all duration-300 font-medium px-6 py-3 rounded-xl hover:bg-primary/10 animate-slide-in-right"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </a>
               ))}
-              <div className="flex flex-col space-y-2 px-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col space-y-3 px-6 pt-4 border-t border-white/10">
                 <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="ghost" className="text-gray-600 dark:text-gray-300 justify-start w-full">
+                  <Button variant="ghost" className="text-foreground/70 hover:text-primary justify-start w-full rounded-xl">
                     {text[language].login}
                   </Button>
                 </Link>

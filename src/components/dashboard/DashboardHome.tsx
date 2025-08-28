@@ -90,50 +90,56 @@ const DashboardHome = () => {
 
   return (
     <div className="space-y-6">
-      {/* ترحيب */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
+      {/* Enhanced Welcome Section */}
+      <div className="bg-gradient-primary rounded-3xl p-8 text-white shadow-2xl animate-glow">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold mb-2">
+            <h1 className="text-4xl font-bold mb-4 animate-fade-in-up">
               مرحباً، {user?.ownerName}
             </h1>
-            <p className="text-blue-100">
+            <p className="text-white/90 text-xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               إليك نظرة سريعة على أداء {user?.companyName} اليوم
             </p>
           </div>
-          <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
-            <Calendar className="w-8 h-8 text-blue-200" />
+          <div className="hidden md:flex items-center space-x-6 rtl:space-x-reverse animate-bounce-in" style={{ animationDelay: '0.4s' }}>
+            <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+              <Calendar className="w-10 h-10 text-white" />
+            </div>
             <div className="text-right rtl:text-left">
-              <p className="text-sm text-blue-200">التاريخ</p>
-              <p className="font-semibold">{new Date().toLocaleDateString('ar-SA')}</p>
+              <p className="text-white/80">التاريخ</p>
+              <p className="font-semibold text-xl">{new Date().toLocaleDateString('ar-SA')}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* إحصائيات سريعة */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Enhanced Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {statsCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
+            <div 
+              key={index} 
+              className="card-modern group hover:glow-effect animate-bounce-in"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground/70 transition-colors">
                     {stat.title}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
+                  <p className="text-3xl font-bold text-foreground mt-3 group-hover:text-primary transition-colors">
                     {stat.value}
                   </p>
-                  <p className={`text-sm mt-1 ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`text-sm mt-2 ${stat.change.startsWith('+') ? 'text-success' : 'text-destructive'}`}>
                     {stat.change} من الأمس
                   </p>
                 </div>
-                <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                  <Icon className={`w-6 h-6 ${stat.color}`} />
+                <div className={`p-4 rounded-2xl ${stat.bgColor} group-hover:scale-125 transition-transform duration-300`}>
+                  <Icon className={`w-8 h-8 ${stat.color}`} />
                 </div>
               </div>
-            </Card>
+            </div>
           );
         })}
       </div>
