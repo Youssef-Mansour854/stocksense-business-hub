@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Home, Package, ShoppingCart, ShoppingBag, Warehouse, 
-  Users, Building2, DollarSign, BarChart3, Settings, 
+  Users, Building2, DollarSign, BarChart3, Settings, Bell,
   Menu, X, LogOut, Bell, User, ChevronDown, Receipt
 } from 'lucide-react';
 import { logout } from '@/utils/auth';
@@ -23,14 +23,12 @@ const DashboardLayout = ({ children, user }: DashboardLayoutProps) => {
   const menuItems = [
     { name: 'لوحة التحكم', path: '/dashboard', icon: Home, roles: ['owner', 'manager', 'accountant', 'cashier'] },
     { name: 'المنتجات', path: '/dashboard/products', icon: Package, roles: ['owner', 'manager', 'cashier'] },
-    { name: 'نقطة البيع', path: '/dashboard/pos', icon: ShoppingCart, roles: ['owner', 'manager', 'cashier'] },
     { name: 'المبيعات', path: '/dashboard/sales', icon: ShoppingCart, roles: ['owner', 'manager', 'accountant'] },
     { name: 'المشتريات', path: '/dashboard/purchases', icon: ShoppingBag, roles: ['owner', 'manager'] },
     { name: 'الفواتير', path: '/dashboard/invoices', icon: Receipt, roles: ['owner', 'manager', 'accountant'] },
     { name: 'المخزون', path: '/dashboard/inventory', icon: Warehouse, roles: ['owner', 'manager', 'cashier'] },
     { name: 'العملاء', path: '/dashboard/customers', icon: Users, roles: ['owner', 'manager', 'cashier'] },
-    { name: 'الموردين', path: '/dashboard/suppliers', icon: Users, roles: ['owner', 'manager'] },
-    { name: 'الفروع', path: '/dashboard/branches', icon: Building2, roles: ['owner'] },
+    { name: 'الإشعارات', path: '/dashboard/notifications', icon: Bell, roles: ['owner', 'manager', 'accountant', 'cashier'] },
     { name: 'المصروفات', path: '/dashboard/expenses', icon: DollarSign, roles: ['owner', 'manager', 'accountant'] },
     { name: 'التقارير', path: '/dashboard/reports', icon: BarChart3, roles: ['owner', 'manager', 'accountant'] },
     { name: 'المستخدمين', path: '/dashboard/users', icon: Users, roles: ['owner'] },

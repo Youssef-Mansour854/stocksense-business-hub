@@ -3,14 +3,12 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import DashboardHome from '@/components/dashboard/DashboardHome';
 import ProductsPage from '@/components/dashboard/ProductsPage';
-import ComprehensivePOSPage from '@/components/dashboard/ComprehensivePOSPage';
 import SalesPage from '@/components/dashboard/SalesPage';
 import EnhancedPurchasesPage from '@/components/dashboard/EnhancedPurchasesPage';
 import AdvancedInventoryPage from '@/components/dashboard/AdvancedInventoryPage';
 import CustomersPage from '@/components/dashboard/CustomersPage';
 import InvoicesPage from '@/components/dashboard/InvoicesPage';
-import EnhancedSuppliersPage from '@/components/dashboard/EnhancedSuppliersPage';
-import BranchesPage from '@/components/dashboard/BranchesPage';
+import NotificationsPage from '@/components/dashboard/NotificationsPage';
 import EnhancedExpensesPage from '@/components/dashboard/EnhancedExpensesPage';
 import ComprehensiveReportsPage from '@/components/dashboard/ComprehensiveReportsPage';
 import UsersPage from '@/components/dashboard/UsersPage';
@@ -54,14 +52,12 @@ const Dashboard = () => {
       <Routes>
         <Route path="/" element={<DashboardHome />} />
         <Route path="/products" element={<ProductsPage />} />
-        <Route path="/pos" element={<ComprehensivePOSPage />} />
         <Route path="/sales" element={<SalesPage />} />
         <Route path="/purchases" element={<EnhancedPurchasesPage />} />
         <Route path="/invoices" element={<InvoicesPage />} />
         <Route path="/inventory" element={<AdvancedInventoryPage />} />
         <Route path="/customers" element={<CustomersPage />} />
-        <Route path="/suppliers" element={<EnhancedSuppliersPage />} />
-        <Route path="/branches" element={<BranchesPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/expenses" element={<EnhancedExpensesPage />} />
         <Route path="/reports" element={<ComprehensiveReportsPage />} />
         <Route path="/users" element={<UsersPage />} />
