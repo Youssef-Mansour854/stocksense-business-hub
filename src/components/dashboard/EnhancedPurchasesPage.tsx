@@ -20,10 +20,10 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { 
   getPurchases, savePurchases, getProducts, 
-  getStock, saveStock, getWarehouses 
+  getStock, saveStock, getWarehouses, getSuppliers
 } from '@/utils/storage';
 import { getAuthenticatedUser } from '@/utils/auth';
-import { Purchase, PurchaseItem, Product, Stock, Warehouse } from '@/types';
+import { Purchase, PurchaseItem, Product, Stock, Warehouse, Supplier } from '@/types';
 import { formatBothDateTime } from '@/utils/dateUtils';
 
 const purchaseSchema = z.object({

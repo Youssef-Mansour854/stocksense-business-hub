@@ -684,19 +684,9 @@ const EnhancedExpensesPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {(() => {
-                        const dates = formatBothDateTime(expense.date);
-                        return (
-                          <div>
-                            <div className="text-sm text-gray-900 dark:text-white">
-                              {dates.gregorian}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {dates.hijri}
-                            </div>
-                          </div>
-                        );
-                      })()}
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {formatBothDateTime(expense.date)}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">
