@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getExpenses, saveExpenses, getBranches } from '@/utils/storage';
 import { getAuthenticatedUser } from '@/utils/auth';
 import { Expense, Branch } from '@/types';
+import { formatBothDateTime } from '@/utils/dateUtils';
 
 const expenseSchema = z.object({
   categoryId: z.string().min(1, 'فئة المصروف مطلوبة'),
@@ -683,12 +684,19 @@ const EnhancedExpensesPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        {new Date(expense.date).toLocaleDateString('ar-SA')}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(expense.createdAt).toLocaleTimeString('ar-SA')}
-                      </div>
+                      {(() => {
+                        const dates = formatBothDateTime(expense.date);
+                        return (
+                          <div>
+                            <div className="text-sm text-gray-900 dark:text-white">
+                              {dates.gregorian}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {dates.hijri}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">

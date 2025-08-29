@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getCustomers, saveCustomers, getSales, getInvoices } from '@/utils/storage';
 import { getAuthenticatedUser } from '@/utils/auth';
 import { Customer, Sale, Invoice } from '@/types';
+import { formatBothDateTime } from '@/utils/dateUtils';
 
 const customerSchema = z.object({
   name: z.string().min(2, 'اسم العميل مطلوب'),

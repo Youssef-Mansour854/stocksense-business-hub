@@ -1,4 +1,20 @@
 // أدوات التاريخ الميلادي والهجري
+export const formatBothDates = (date: string | Date): { gregorian: string; hijri: string } => {
+  const d = new Date(date);
+  return {
+    gregorian: d.toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }),
+    hijri: d.toLocaleDateString('ar-SA-u-ca-islamic', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  };
+};
+
 export const formatGregorianDate = (date: string | Date): string => {
   const d = new Date(date);
   return d.toLocaleDateString('ar-SA', {
@@ -15,6 +31,26 @@ export const formatHijriDate = (date: string | Date): string => {
     month: 'long',
     day: 'numeric',
   });
+};
+
+export const formatBothDateTime = (date: string | Date): { gregorian: string; hijri: string } => {
+  const d = new Date(date);
+  return {
+    gregorian: d.toLocaleString('ar-SA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    hijri: d.toLocaleString('ar-SA-u-ca-islamic', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  };
 };
 
 export const formatDateTime = (date: string | Date): string => {

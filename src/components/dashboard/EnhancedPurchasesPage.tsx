@@ -19,11 +19,12 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  getPurchases, savePurchases, getProducts, getSuppliers, 
+  getPurchases, savePurchases, getProducts, 
   getStock, saveStock, getWarehouses 
 } from '@/utils/storage';
 import { getAuthenticatedUser } from '@/utils/auth';
-import { Purchase, PurchaseItem, Product, Supplier, Stock, Warehouse } from '@/types';
+import { Purchase, PurchaseItem, Product, Stock, Warehouse } from '@/types';
+import { formatBothDateTime } from '@/utils/dateUtils';
 
 const purchaseSchema = z.object({
   supplierId: z.string().min(1, 'المورد مطلوب'),

@@ -15,9 +15,10 @@ import {
   CreditCard, Banknote, Smartphone
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getProducts, getSales, saveSales, getStock, saveStock } from '@/utils/storage';
+import { getProducts, getSales, saveSales, getStock, saveStock, getCustomers, saveCustomers } from '@/utils/storage';
 import { getAuthenticatedUser } from '@/utils/auth';
-import { Product, Sale, SaleItem, Stock } from '@/types';
+import { Product, Sale, SaleItem, Stock, Customer } from '@/types';
+import { formatBothDateTime } from '@/utils/dateUtils';
 
 const saleSchema = z.object({
   customerName: z.string().optional(),
@@ -546,12 +547,19 @@ const SalesPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        {new Date(sale.createdAt).toLocaleDateString('ar-SA')}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(sale.createdAt).toLocaleTimeString('ar-SA')}
-                      </div>
+                      {(() => {
+                        const dates = formatBothDateTime(sale.createdAt);
+                        return (
+                          <div>
+                            <div className="text-sm text-gray-900 dark:text-white">
+                              {dates.gregorian}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {dates.hijri}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Button variant="ghost" size="sm">

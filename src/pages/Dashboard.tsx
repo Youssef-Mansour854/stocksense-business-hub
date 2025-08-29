@@ -5,9 +5,9 @@ import DashboardHome from '@/components/dashboard/DashboardHome';
 import ProductsPage from '@/components/dashboard/ProductsPage';
 import SalesPage from '@/components/dashboard/SalesPage';
 import EnhancedPurchasesPage from '@/components/dashboard/EnhancedPurchasesPage';
+import InvoicesPage from '@/components/dashboard/InvoicesPage';
 import AdvancedInventoryPage from '@/components/dashboard/AdvancedInventoryPage';
 import CustomersPage from '@/components/dashboard/CustomersPage';
-import EnhancedNotificationsPage from '@/components/dashboard/EnhancedNotificationsPage';
 import EnhancedExpensesPage from '@/components/dashboard/EnhancedExpensesPage';
 import ComprehensiveReportsPage from '@/components/dashboard/ComprehensiveReportsPage';
 import SettingsPage from '@/components/dashboard/SettingsPage';
@@ -52,9 +52,9 @@ const Dashboard = () => {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/sales" element={<SalesPage />} />
         <Route path="/purchases" element={<EnhancedPurchasesPage />} />
+        <Route path="/invoices" element={<InvoicesPage />} />
         <Route path="/inventory" element={<AdvancedInventoryPage />} />
         <Route path="/customers" element={<CustomersPage />} />
-        <Route path="/notifications" element={<EnhancedNotificationsPage />} />
         <Route path="/expenses" element={<EnhancedExpensesPage />} />
         <Route path="/reports" element={<ComprehensiveReportsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
