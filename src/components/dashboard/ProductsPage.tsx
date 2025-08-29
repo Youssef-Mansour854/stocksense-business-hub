@@ -377,10 +377,21 @@ const ProductsPage = () => {
                       name="supplierId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>المورد (اختياري)</FormLabel>
+                          <FormLabel>المورد</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <Input placeholder="اسم المورد" {...field} />
+                            <SelectTrigger>
+                              <SelectValue placeholder="اختر المورد" />
+                            </SelectTrigger>
                           </FormControl>
+                          <SelectContent>
+                            <SelectItem value="default_supplier">مورد افتراضي</SelectItem>
+                            {suppliers.map((supplier) => (
+                              <SelectItem key={supplier.id} value={supplier.id}>
+                                {supplier.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -660,7 +671,7 @@ const ProductsPage = () => {
                           {product.name}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {category?.name} • {supplier?.name}
+                          {category?.name}
                         </div>
                       </div>
                     </td>

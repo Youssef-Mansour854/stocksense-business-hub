@@ -50,7 +50,6 @@ const Dashboard = () => {
       <Routes>
         <Route path="/" element={<DashboardHome />} />
         <Route path="/products" element={<ProductsPage />} />
-        <Route path="/sales" element={<SalesPage />} />
         <Route path="/purchases" element={<EnhancedPurchasesPage />} />
         <Route path="/invoices" element={<InvoicesPage />} />
         <Route path="/inventory" element={<AdvancedInventoryPage />} />
