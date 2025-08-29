@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import DashboardHome from '@/components/dashboard/DashboardHome';
 import ProductsPage from '@/components/dashboard/ProductsPage';
+import SalesPage from '@/components/dashboard/SalesPage';
 import EnhancedPurchasesPage from '@/components/dashboard/EnhancedPurchasesPage';
 import InvoicesPage from '@/components/dashboard/InvoicesPage';
 import AdvancedInventoryPage from '@/components/dashboard/AdvancedInventoryPage';
@@ -49,6 +50,7 @@ const Dashboard = () => {
       <Routes>
         <Route path="/" element={<DashboardHome />} />
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/sales" element={<SalesPage />} />
         <Route path="/purchases" element={<EnhancedPurchasesPage />} />
         <Route path="/invoices" element={<InvoicesPage />} />
         <Route path="/inventory" element={<AdvancedInventoryPage />} />
