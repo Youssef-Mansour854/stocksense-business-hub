@@ -34,16 +34,16 @@ const DashboardHome = () => {
       color: 'bg-blue-500 hover:bg-blue-600'
     },
     { 
-      title: 'عملية بيع جديدة', 
-      icon: ShoppingCart, 
-      action: 'sales',
-      color: 'bg-green-500 hover:bg-green-600'
-    },
-    { 
       title: 'تسجيل مشتريات', 
       icon: Package, 
       action: 'purchases',
       color: 'bg-purple-500 hover:bg-purple-600'
+    },
+    { 
+      title: 'إنشاء فاتورة', 
+      icon: Receipt, 
+      action: 'invoices',
+      color: 'bg-green-500 hover:bg-green-600'
     },
     { 
       title: 'إضافة مصروف', 
