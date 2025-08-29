@@ -32,7 +32,7 @@ export const formatHijriDate = (date: string | Date): string => {
   });
 };
 
-export const formatBothDateTime = (date: string | Date): string => {
+export const formatBothDateTime = (date: string | Date, showBoth: boolean = true): string => {
   const d = new Date(date);
   const gregorian = d.toLocaleString('ar-SA', {
     year: 'numeric',
@@ -41,6 +41,11 @@ export const formatBothDateTime = (date: string | Date): string => {
     hour: '2-digit',
     minute: '2-digit',
   });
+  
+  if (!showBoth) {
+    return gregorian;
+  }
+  
   const hijri = d.toLocaleString('ar-SA-u-ca-islamic', {
     year: 'numeric',
     month: 'short',
@@ -48,7 +53,7 @@ export const formatBothDateTime = (date: string | Date): string => {
     hour: '2-digit',
     minute: '2-digit',
   });
-  return `${gregorian} - ${hijri}`;
+  return `${gregorian} الموافق ${hijri}`;
 };
 
 export const formatDateTime = (date: string | Date): string => {

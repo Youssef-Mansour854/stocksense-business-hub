@@ -660,7 +660,6 @@ const ProductsPage = () => {
               {filteredProducts.map((product) => {
                 const currentStock = getProductStock(product.id);
                 const category = categories.find(c => c.id === product.categoryId);
-                const supplier = suppliers.find(s => s.id === product.supplierId);
                 const finalPrice = calculateFinalPrice(product.sellPrice, product.taxRate || 0);
                 
                 return (
