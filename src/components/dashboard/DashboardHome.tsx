@@ -107,7 +107,9 @@ const DashboardHome = () => {
             </div>
             <div className="text-right rtl:text-left">
               <p className="text-white/80">التاريخ</p>
-              <p className="font-semibold text-xl">{new Date().toLocaleDateString('ar-SA')}</p>
+              <p className="font-semibold text-lg">
+                {new Date().toLocaleDateString('ar-SA')} الموافق {new Date().toLocaleDateString('ar-SA-u-ca-islamic')}
+              </p>
             </div>
           </div>
         </div>

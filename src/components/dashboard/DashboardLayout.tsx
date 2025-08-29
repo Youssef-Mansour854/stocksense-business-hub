@@ -589,11 +589,8 @@ const EnhancedPurchasesPage = () => {
                           className="flex items-center space-x-2 rtl:space-x-reverse"
                         >
                           <ShoppingBag className="w-4 h-4" />
-                          <span>إنشاء فاتورة الشراء</span>
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
+                <div className="current-date text-xs font-medium text-gray-900 dark:text-white">
+                  {dates.combined}
                 </div>
               </div>
             </DialogContent>
