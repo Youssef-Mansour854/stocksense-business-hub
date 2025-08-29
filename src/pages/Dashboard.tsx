@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import DashboardHome from '@/components/dashboard/DashboardHome';
 import ProductsPage from '@/components/dashboard/ProductsPage';
-import SalesPage from '@/components/dashboard/SalesPage';
 import EnhancedPurchasesPage from '@/components/dashboard/EnhancedPurchasesPage';
 import InvoicesPage from '@/components/dashboard/InvoicesPage';
 import AdvancedInventoryPage from '@/components/dashboard/AdvancedInventoryPage';
