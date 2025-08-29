@@ -162,6 +162,10 @@ const DashboardHome = () => {
                 key={index}
                 variant="outline"
                 className={`h-auto p-4 flex flex-col items-center space-y-2 hover:scale-105 transition-transform ${action.color} text-white border-0`}
+                onClick={() => {
+                  // يمكن إضافة التنقل هنا لاحقاً
+                  console.log(`Navigate to ${action.action}`);
+                }}
               >
                 <Icon className="w-6 h-6" />
                 <span className="text-sm font-medium">{action.title}</span>
