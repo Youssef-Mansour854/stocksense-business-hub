@@ -511,12 +511,4 @@ const EnhancedPurchasesPage = () => {
                   <h3 className="text-lg font-semibold">ملخص الفاتورة</h3>
                   
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="paidAmount"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>المبلغ المدفوع</FormLabel>
-                            <FormControl>
-                              <Input
+                    <form onSubmit={form.handleSubm
